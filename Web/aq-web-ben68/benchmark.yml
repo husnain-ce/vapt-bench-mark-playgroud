@@ -1,0 +1,10 @@
+id: aq-web-ben68
+domain: web
+title: "QuickCart checkout — business-logic price manipulation"
+vuln_class: "Business logic flaw / insecure design (negative quantity)"
+difficulty: medium
+run: native-python
+port: 8000
+flag: "f13{business_logic_negative_total}"
+expose: true
+author: aqsec

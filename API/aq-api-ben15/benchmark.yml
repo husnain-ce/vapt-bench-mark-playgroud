@@ -1,0 +1,10 @@
+id: aq-api-ben15
+domain: api
+title: "OrderService — BOLA/IDOR"
+vuln_class: "Broken Object Level Authorization (IDOR)"
+difficulty: easy
+run: native-python
+port: 8000
+flag: "f13{bola_idor_other_user}"
+expose: true
+author: aqsec

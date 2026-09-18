@@ -1,8 +1,8 @@
 # Benchmark Catalog
 
-Auto-generated from `catalog/benchmarks.yaml` by `tools/catalog.py`. Total targets: **128**.
+Auto-generated from `catalog/benchmarks.yaml` by `tools/catalog.py`. Total targets: **134**.
 
-Counts by domain: `android` 19, `api` 14, `cloud` 10, `ios` 11, `machine` 6, `web` 68.
+Counts by domain: `android` 19, `api` 16, `cloud` 12, `ios` 11, `machine` 6, `web` 70.
 
 ## Hostable targets (Docker)
 
@@ -77,6 +77,8 @@ These run as containers via the `bench` CLI on the listed host port.
 | `aq-web-ben65` | web | 8165 | compose | aq-web-ben65 | — |
 | `aq-web-ben66` | web | 8166 | compose | aq-web-ben66 | — |
 | `aq-web-ben67` | web | 8167 | compose | aq-web-ben67 | — |
+| `aq-web-ben68` | web | 8168 | native-python | Business logic flaw / insecure design (negative quantity) | medium |
+| `aq-web-ben69` | web | 8169 | native-python | Broken authentication via unverified JWT (alg:none) | medium |
 | `aq-api-ben01` | api | 8301 | native-python | application/json' -d '{"username":"alice","password":"alice1 | — |
 | `aq-api-ben02` | api | 8302 | dockerfile | Damn Vulnerable GraphQL Application | — |
 | `aq-api-ben03` | api | 8303 | compose | dvws-node | — |
@@ -91,6 +93,8 @@ These run as containers via the `bench` CLI on the listed host port.
 | `aq-api-ben12` | api | 8312 | compose | VAmPI | — |
 | `aq-api-ben13` | api | 8313 | compose | vAPI [![Tweet](https://img.shields.io/twitter/url/http/shiel | — |
 | `aq-api-ben14` | api | 8314 | manual ⚠️ | application/json or application/xml | — |
+| `aq-api-ben15` | api | 8315 | native-python | Broken Object Level Authorization (IDOR) | easy |
+| `aq-api-ben16` | api | 8316 | native-python | Mass assignment (privilege escalation via is_admin) | medium |
 | `aq-cloud-ben01` | cloud | 8501 | native-python | Public S3 bucket read/write; sensitive data exposure | easy |
 | `aq-cloud-ben02` | cloud | 8502 | native-python | Secrets in Lambda environment variables — DB password, Strip | — |
 | `aq-cloud-ben03` | cloud | 8503 | native-python | application/json' -X POST \ | — |
@@ -101,6 +105,8 @@ These run as containers via the `bench` CLI on the listed host port.
 | `aq-cloud-ben08` | cloud | 8508 | native-python | SSRF with header control — /fetch fetches any URL and forwar | — |
 | `aq-cloud-ben09` | cloud | 8509 | native-python | SSRF with header control — /fetch fetches any URL and forwar | — |
 | `aq-cloud-ben10` | cloud | 8510 | manual ⚠️ | pull_request_target with secrets — the workflow trusts fork  | — |
+| `aq-cloud-ben11` | cloud | 8511 | native-python | Security misconfiguration (unauthenticated actuator/env leak | easy |
+| `aq-cloud-ben12` | cloud | 8512 | native-python | Insecure deserialization (yaml.UnsafeLoader) -> RCE | hard |
 | `aq-web-owasp-suite` | web | 5200 | compose | OWASP Top 10 (flagship apps) | — |
 
 ⚠️ = scanner could not fully determine run method or port; verify before relying on it.

@@ -28,23 +28,29 @@ except ImportError:
 
 REPO = Path(__file__).resolve().parent.parent
 
-# OWASP Top 10 2021 keyword map (first match wins, most specific first).
+# OWASP Top 10 2021 keyword map (first match wins). Ordered most-specific
+# first so that, e.g., a deserialization RCE lands in A08 not A03, and a
+# security misconfiguration is not swallowed by the "auth" in "unauthenticated".
 OWASP = [
-    ("A03: Injection", r"\b(sql|sqli|injection|xss|cross.site|command inject|rce|"
-                       r"remote code|xxe|ssti|template inject|ldap inject|code inject)\b"),
-    ("A10: SSRF", r"\bssrf|server.side request|metadata service\b"),
-    ("A01: Broken Access Control", r"\b(idor|access control|authoriz|privilege|"
-                                   r"path travers|directory travers|lfi|local file|forced brows)\b"),
-    ("A07: Auth Failures", r"\b(auth|jwt|session|login|brute|credential|password)\b"),
-    ("A02: Cryptographic Failures", r"\b(crypto|encrypt|hardcoded secret|cleartext|"
-                                    r"weak hash|tls|plaintext)\b"),
-    ("A05: Security Misconfiguration", r"\b(misconfig|cors|default cred|exposure|"
-                                       r"disclosure|open bucket|public bucket|config)\b"),
-    ("A08: Software & Data Integrity", r"\b(deseriali|ci/cd|pipeline|supply chain|"
-                                       r"insecure deseriali)\b"),
-    ("A06: Vulnerable Components", r"\b(cve-|log4|outdated|vulnerable (lib|component|dependency))\b"),
-    ("A04: Insecure Design", r"\b(business logic|race condition|insecure design|mass assignment)\b"),
-    ("A09: Logging & Monitoring", r"\b(logging|monitoring|audit trail)\b"),
+    ("A08: Software & Data Integrity", r"deseriali|pickle|unsafe (yaml|load)|"
+                                       r"ci/cd|pipeline|supply chain"),
+    ("A04: Insecure Design", r"business logic|mass assignment|race condition|"
+                             r"insecure design"),
+    ("A05: Security Misconfiguration", r"misconfig|actuator|exposed (debug|env|"
+                                       r"endpoint|service)|default cred|open bucket|"
+                                       r"public bucket|directory listing"),
+    ("A10: SSRF", r"ssrf|server.side request|metadata service"),
+    ("A03: Injection", r"sql|sqli|injection|xss|cross.site|command inject|\brce\b|"
+                       r"remote code|xxe|ssti|template inject|ldap inject|code inject"),
+    ("A01: Broken Access Control", r"idor|bola|object level|access control|"
+                                   r"authoriz|path travers|directory travers|lfi|"
+                                   r"local file|forced brows"),
+    ("A02: Cryptographic Failures", r"crypto|encrypt|hardcoded secret|cleartext|"
+                                    r"weak hash|plaintext|alg:?none|weak (jwt|key)"),
+    ("A07: Auth Failures", r"jwt|session|login|brute|credential|password|"
+                           r"broken auth|unverified"),
+    ("A06: Vulnerable Components", r"cve-|log4|outdated|vulnerable (lib|component|dependency)"),
+    ("A09: Logging & Monitoring", r"logging|monitoring|audit trail"),
 ]
 # Non-reproducible or end-of-life base images.
 EOL_BASE = re.compile(
@@ -111,6 +117,10 @@ def gather():
             if f.exists():
                 readme_text = f.read_text(errors="ignore")[:4000]
                 break
+        # Categorise on the declared class + title first (precise), then the
+        # README as extra signal. The OWASP list is ordered most-specific-first
+        # so a strong keyword (deserialize, mass assignment, misconfig) wins
+        # before a generic one (auth, injection) picks up incidental prose.
         cat = owasp_of(f"{e.get('vuln_class','')} {e.get('title','')} {readme_text}")
         level, notes = build_risk(e)
         rows.append({

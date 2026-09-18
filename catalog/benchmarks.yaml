@@ -12,12 +12,12 @@ meta:
   - machine
   counts:
     android: 19
-    api: 14
-    cloud: 10
+    api: 16
+    cloud: 12
     ios: 11
     machine: 6
-    web: 68
-  total: 128
+    web: 70
+  total: 134
 targets:
 - id: aq-web-ben01
   domain: web
@@ -1227,6 +1227,48 @@ targets:
   enabled: true
   expose: true
   notes: ''
+- id: aq-web-ben68
+  domain: web
+  path: Web/aq-web-ben68
+  title: "QuickCart checkout \u2014 business-logic price manipulation"
+  vuln_class: Business logic flaw / insecure design (negative quantity)
+  difficulty: medium
+  run_method: native-python
+  host_port: 8168
+  internal_port: 8000
+  compose_file: ''
+  compose_service: ''
+  dockerfile: ''
+  image: ''
+  hostable: true
+  needs_review: false
+  enabled: true
+  expose: true
+  notes: ''
+  has_manifest: true
+  flag: f13{business_logic_negative_total}
+  author: aqsec
+- id: aq-web-ben69
+  domain: web
+  path: Web/aq-web-ben69
+  title: "AcmePortal \u2014 JWT alg:none forgery"
+  vuln_class: Broken authentication via unverified JWT (alg:none)
+  difficulty: medium
+  run_method: native-python
+  host_port: 8169
+  internal_port: 8000
+  compose_file: ''
+  compose_service: ''
+  dockerfile: ''
+  image: ''
+  hostable: true
+  needs_review: false
+  enabled: true
+  expose: true
+  notes: ''
+  has_manifest: true
+  flag: f13{jwt_alg_none_forgery}
+  author: aqsec
 - id: aq-api-ben01
   domain: api
   path: API/aq-api-ben01
@@ -1486,6 +1528,48 @@ targets:
   enabled: true
   expose: false
   notes: ''
+- id: aq-api-ben15
+  domain: api
+  path: API/aq-api-ben15
+  title: "OrderService \u2014 BOLA/IDOR"
+  vuln_class: Broken Object Level Authorization (IDOR)
+  difficulty: easy
+  run_method: native-python
+  host_port: 8315
+  internal_port: 8000
+  compose_file: ''
+  compose_service: ''
+  dockerfile: ''
+  image: ''
+  hostable: true
+  needs_review: false
+  enabled: true
+  expose: true
+  notes: ''
+  has_manifest: true
+  flag: f13{bola_idor_other_user}
+  author: aqsec
+- id: aq-api-ben16
+  domain: api
+  path: API/aq-api-ben16
+  title: "AccountService \u2014 mass assignment"
+  vuln_class: Mass assignment (privilege escalation via is_admin)
+  difficulty: medium
+  run_method: native-python
+  host_port: 8316
+  internal_port: 8000
+  compose_file: ''
+  compose_service: ''
+  dockerfile: ''
+  image: ''
+  hostable: true
+  needs_review: false
+  enabled: true
+  expose: true
+  notes: ''
+  has_manifest: true
+  flag: f13{mass_assignment_is_admin}
+  author: aqsec
 - id: aq-cloud-ben01
   domain: cloud
   path: Cloud/aq-cloud-ben01
@@ -1674,6 +1758,48 @@ targets:
   enabled: true
   expose: false
   notes: ''
+- id: aq-cloud-ben11
+  domain: cloud
+  path: Cloud/aq-cloud-ben11
+  title: "MetricsGateway \u2014 exposed debug/env endpoint"
+  vuln_class: Security misconfiguration (unauthenticated actuator/env leak)
+  difficulty: easy
+  run_method: native-python
+  host_port: 8511
+  internal_port: 8000
+  compose_file: ''
+  compose_service: ''
+  dockerfile: ''
+  image: ''
+  hostable: true
+  needs_review: false
+  enabled: true
+  expose: true
+  notes: ''
+  has_manifest: true
+  flag: f13{exposed_actuator_env_leak}
+  author: aqsec
+- id: aq-cloud-ben12
+  domain: cloud
+  path: Cloud/aq-cloud-ben12
+  title: "ConfigLoader \u2014 unsafe YAML deserialization RCE"
+  vuln_class: Insecure deserialization (yaml.UnsafeLoader) -> RCE
+  difficulty: hard
+  run_method: native-python
+  host_port: 8512
+  internal_port: 8000
+  compose_file: ''
+  compose_service: ''
+  dockerfile: ''
+  image: ''
+  hostable: true
+  needs_review: false
+  enabled: true
+  expose: true
+  notes: ''
+  has_manifest: true
+  flag: f13{yaml_unsafe_load_rce}
+  author: aqsec
 - id: aq-web-owasp-suite
   domain: web
   path: Web/.OWASP

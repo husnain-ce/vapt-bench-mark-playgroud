@@ -1,0 +1,10 @@
+id: aq-cloud-ben11
+domain: cloud
+title: "MetricsGateway — exposed debug/env endpoint"
+vuln_class: "Security misconfiguration (unauthenticated actuator/env leak)"
+difficulty: easy
+run: native-python
+port: 8000
+flag: "f13{exposed_actuator_env_leak}"
+expose: true
+author: aqsec

@@ -1,0 +1,10 @@
+id: aq-web-ben69
+domain: web
+title: "AcmePortal — JWT alg:none forgery"
+vuln_class: "Broken authentication via unverified JWT (alg:none)"
+difficulty: medium
+run: native-python
+port: 8000
+flag: "f13{jwt_alg_none_forgery}"
+expose: true
+author: aqsec

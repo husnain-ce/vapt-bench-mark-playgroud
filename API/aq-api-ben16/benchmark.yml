@@ -1,0 +1,10 @@
+id: aq-api-ben16
+domain: api
+title: "AccountService — mass assignment"
+vuln_class: "Mass assignment (privilege escalation via is_admin)"
+difficulty: medium
+run: native-python
+port: 8000
+flag: "f13{mass_assignment_is_admin}"
+expose: true
+author: aqsec

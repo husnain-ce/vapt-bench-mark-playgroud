@@ -1,0 +1,10 @@
+id: aq-cloud-ben12
+domain: cloud
+title: "ConfigLoader — unsafe YAML deserialization RCE"
+vuln_class: "Insecure deserialization (yaml.UnsafeLoader) -> RCE"
+difficulty: hard
+run: native-python
+port: 8000
+flag: "f13{yaml_unsafe_load_rce}"
+expose: true
+author: aqsec
