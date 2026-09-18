@@ -1,0 +1,463 @@
+#!/usr/bin/env python3
+"""bench -- unified control CLI for the VAPT benchmark playground.
+
+Reads catalog/benchmarks.yaml (the single source of truth produced by
+tools/catalog.py) and brings any network target up as a container on its
+assigned, collision-free host port -- regardless of whether the target ships
+its own compose file, its own Dockerfile, a pinned upstream image, or nothing
+but source that one of the generic templates in docker/ can wrap.
+
+Common usage
+------------
+    ./bench list                    # every hostable target + its port
+    ./bench list --domain cloud     # filter by domain
+    ./bench info aq-web-ben1        # one target's details
+    ./bench up aq-web-ben1          # build/pull + run it on its host port
+    ./bench up --domain cloud       # bring up a whole domain
+    ./bench status                  # what is currently running
+    ./bench logs aq-web-ben1        # tail a target's logs
+    ./bench down aq-web-ben1        # stop + remove it
+    ./bench down --all              # stop everything bench started
+    ./bench ports                   # the full port map
+    ./bench doctor                  # environment + catalog sanity check
+
+Only Python 3.8+, PyYAML, and Docker are required.
+"""
+from __future__ import annotations
+
+import argparse
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+try:
+    import yaml
+except ImportError:
+    sys.exit("PyYAML is required: pip install pyyaml")
+
+REPO = Path(__file__).resolve().parent
+CATALOG = REPO / "catalog" / "benchmarks.yaml"
+OVERRIDE_DIR = REPO / ".bench"
+TEMPLATES = {
+    "native-python": REPO / "docker" / "python.Dockerfile",
+    "native-node": REPO / "docker" / "node.Dockerfile",
+    "php-static": REPO / "docker" / "php.Dockerfile",
+}
+ENTRY_CANDIDATES = ["app.py", "main.py", "server.py", "server.js", "index.js"]
+
+# ANSI helpers (disabled when not a TTY)
+def _c(code):
+    return code if sys.stdout.isatty() else ""
+BOLD, DIM, GREEN, YELLOW, RED, CYAN, RESET = (
+    _c("\033[1m"), _c("\033[2m"), _c("\033[32m"), _c("\033[33m"),
+    _c("\033[31m"), _c("\033[36m"), _c("\033[0m"))
+
+
+def die(msg: str, code: int = 1):
+    print(f"{RED}error:{RESET} {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def load_catalog() -> dict:
+    if not CATALOG.exists():
+        die(f"{CATALOG} not found -- run: python3 tools/catalog.py")
+    return yaml.safe_load(CATALOG.read_text()) or {}
+
+
+def targets(cat: dict) -> list[dict]:
+    return cat.get("targets", [])
+
+
+def find(cat: dict, ident: str) -> dict | None:
+    ident = ident.strip()
+    for t in targets(cat):
+        if t["id"] == ident:
+            return t
+    # allow bare numbers / suffixes as a convenience: "web-1", "ben1"
+    for t in targets(cat):
+        if t["id"].endswith(ident):
+            return t
+    return None
+
+
+def select(cat: dict, idents, domain, want_all) -> list[dict]:
+    ts = [t for t in targets(cat) if t.get("hostable") and t.get("enabled", True)]
+    if want_all:
+        return ts
+    if domain:
+        got = [t for t in ts if t["domain"] == domain]
+        if not got:
+            die(f"no hostable targets in domain '{domain}'")
+        return got
+    result = []
+    for ident in idents:
+        t = find(cat, ident)
+        if not t:
+            die(f"unknown target '{ident}' (try: ./bench list)")
+        result.append(t)
+    return result
+
+
+def docker_available() -> bool:
+    return shutil.which("docker") is not None
+
+
+def run(cmd: list[str], **kw) -> int:
+    print(f"{DIM}$ {' '.join(cmd)}{RESET}")
+    return subprocess.run(cmd, **kw).returncode
+
+
+def container_name(t: dict) -> str:
+    return f"bench-{t['id']}"
+
+
+def project_name(t: dict) -> str:
+    return f"bench-{t['id']}".lower().replace("_", "-")
+
+
+def detect_entry(path: Path) -> str:
+    for cand in ENTRY_CANDIDATES:
+        if (path / cand).exists():
+            return cand
+    return "app.py"
+
+
+# --------------------------------------------------------------------------- #
+# bring up
+# --------------------------------------------------------------------------- #
+def up_one(t: dict) -> int:
+    method = t["run_method"]
+    if not t.get("hostable"):
+        die(f"{t['id']} is not hostable ({method}); see {t['path']} for manual steps")
+    print(f"{BOLD}==> up {t['id']}{RESET} "
+          f"({method}, http://localhost:{t['host_port']})")
+    if method == "compose":
+        return up_compose(t)
+    if method == "image":
+        return up_image(t)
+    if method == "dockerfile":
+        return up_dockerfile(t)
+    if method in TEMPLATES:
+        return up_template(t)
+    die(f"cannot host {t['id']}: run_method '{method}' has no launcher")
+    return 1
+
+
+def up_image(t: dict) -> int:
+    name = container_name(t)
+    subprocess.run(["docker", "rm", "-f", name], capture_output=True)
+    return run(["docker", "run", "-d", "--name", name,
+                "-p", f"{t['host_port']}:{t['internal_port']}",
+                "--label", "bench=1", t["image"]])
+
+
+def up_dockerfile(t: dict) -> int:
+    ctx = REPO / Path(t["dockerfile"]).parent
+    dockerfile = REPO / t["dockerfile"]
+    tag = f"bench/{t['id']}"
+    rc = run(["docker", "build", "-t", tag, "-f", str(dockerfile), str(ctx)])
+    if rc != 0:
+        return rc
+    name = container_name(t)
+    subprocess.run(["docker", "rm", "-f", name], capture_output=True)
+    return run(["docker", "run", "-d", "--name", name,
+                "-p", f"{t['host_port']}:{t['internal_port']}",
+                "--label", "bench=1", tag])
+
+
+def up_template(t: dict) -> int:
+    ctx = REPO / t["path"]
+    template = TEMPLATES[t["run_method"]]
+    tag = f"bench/{t['id']}"
+    build = ["docker", "build", "-t", tag, "-f", str(template)]
+    if t["run_method"] in ("native-python", "native-node"):
+        build += ["--build-arg", f"ENTRY={detect_entry(ctx)}"]
+    build += [str(ctx)]
+    rc = run(build)
+    if rc != 0:
+        return rc
+    name = container_name(t)
+    subprocess.run(["docker", "rm", "-f", name], capture_output=True)
+    return run(["docker", "run", "-d", "--name", name,
+                "-p", f"{t['host_port']}:{t['internal_port']}",
+                "--label", "bench=1", tag])
+
+
+def compose_services_with_ports(compose_path: Path) -> list[tuple[str, str]]:
+    """Return [(service, container_port), ...] for services publishing ports."""
+    try:
+        data = yaml.safe_load(compose_path.read_text(errors="ignore")) or {}
+    except yaml.YAMLError:
+        return []
+    out = []
+    for name, svc in (data.get("services") or {}).items():
+        if not isinstance(svc, dict):
+            continue
+        for mapping in svc.get("ports", []) or []:
+            text = str(mapping).strip().strip('"').strip("'").split("/")[0]
+            parts = [p for p in text.split(":") if p != ""]
+            container = parts[-1] if parts else None
+            if container and container.isdigit():
+                out.append((name, container))
+                break
+    return out
+
+
+def write_override(t: dict, services: list[tuple[str, str]]) -> Path:
+    """Republish each ported service on a unique host port; primary service
+    gets the catalog host_port, extras get host_port + 1000*n."""
+    OVERRIDE_DIR.mkdir(exist_ok=True)
+    lines = ["# Auto-generated by bench; maps this target onto its assigned",
+             "# collision-free host ports. Do not edit.", "services:"]
+    for i, (svc, container) in enumerate(services):
+        host = t["host_port"] + 1000 * i
+        lines += [f"  {svc}:", "    ports: !override",
+                  f'      - "{host}:{container}"']
+    path = OVERRIDE_DIR / f"{t['id']}.override.yml"
+    path.write_text("\n".join(lines) + "\n")
+    return path
+
+
+def compose_base_cmd(t: dict) -> list[str]:
+    compose = REPO / t["compose_file"]
+    proj = project_name(t)
+    ctx = REPO / t["path"]
+    return ["docker", "compose", "-p", proj, "-f", str(compose),
+            "--project-directory", str(ctx)]
+
+
+def up_compose(t: dict) -> int:
+    compose = REPO / t["compose_file"]
+    if not compose.exists():
+        die(f"compose file missing: {t['compose_file']}")
+    services = compose_services_with_ports(compose)
+    cmd = compose_base_cmd(t)
+    if t.get("native_ports"):
+        print(f"{DIM}note: running on the target's own ports "
+              f"(see 'notes' in ./bench info {t['id']}){RESET}")
+    elif services:
+        override = write_override(t, services)
+        cmd += ["-f", str(override)]
+    else:
+        print(f"{YELLOW}note:{RESET} no published ports found in "
+              f"{t['compose_file']}; starting as-is")
+    return run(cmd + ["up", "-d", "--build"])
+
+
+# --------------------------------------------------------------------------- #
+# tear down
+# --------------------------------------------------------------------------- #
+def down_one(t: dict) -> int:
+    print(f"{BOLD}==> down {t['id']}{RESET}")
+    if t["run_method"] == "compose":
+        cmd = compose_base_cmd(t)
+        services = compose_services_with_ports(REPO / t["compose_file"])
+        if services:
+            ov = OVERRIDE_DIR / f"{t['id']}.override.yml"
+            if ov.exists():
+                cmd += ["-f", str(ov)]
+        return run(cmd + ["down", "-v"])
+    name = container_name(t)
+    return run(["docker", "rm", "-f", name])
+
+
+def down_all() -> int:
+    print(f"{BOLD}==> down all bench targets{RESET}")
+    # labelled plain containers
+    ids = subprocess.run(["docker", "ps", "-aq", "--filter", "label=bench=1"],
+                         capture_output=True, text=True).stdout.split()
+    if ids:
+        run(["docker", "rm", "-f", *ids])
+    # compose projects named bench-*
+    out = subprocess.run(["docker", "compose", "ls", "-a", "--format", "json"],
+                         capture_output=True, text=True).stdout
+    try:
+        import json
+        for proj in json.loads(out or "[]"):
+            if proj.get("Name", "").startswith("bench-"):
+                run(["docker", "compose", "-p", proj["Name"], "down", "-v"])
+    except (ValueError, KeyError):
+        pass
+    return 0
+
+
+# --------------------------------------------------------------------------- #
+# read-only commands
+# --------------------------------------------------------------------------- #
+def cmd_list(cat, args):
+    ts = targets(cat)
+    if args.domain:
+        ts = [t for t in ts if t["domain"] == args.domain]
+    if not args.all:
+        ts = [t for t in ts if t.get("hostable")]
+    dom = ""
+    for t in sorted(ts, key=lambda x: (x["domain"], x["host_port"])):
+        if t["domain"] != dom:
+            dom = t["domain"]
+            print(f"\n{BOLD}{CYAN}{dom.upper()}{RESET}")
+        flag = f" {YELLOW}⚠ review{RESET}" if t.get("needs_review") else ""
+        host = (f"{GREEN}:{t['host_port']}{RESET}" if t.get("hostable")
+                else f"{DIM}offline{RESET}")
+        vuln = (t.get("vuln_class") or t.get("title") or "")[:46]
+        print(f"  {t['id']:<26} {host:<16} {t['run_method']:<14} {vuln}{flag}")
+    print(f"\n{DIM}{sum(1 for t in ts if t.get('hostable'))} hostable shown. "
+          f"'./bench up <id>' to start one.{RESET}")
+
+
+def cmd_info(cat, args):
+    t = find(cat, args.id)
+    if not t:
+        die(f"unknown target '{args.id}'")
+    print(f"{BOLD}{t['id']}{RESET} -- {t.get('title','')}")
+    for k in ("domain", "vuln_class", "difficulty", "run_method", "host_port",
+              "internal_port", "image", "compose_file", "dockerfile", "path",
+              "hostable", "needs_review", "notes"):
+        v = t.get(k, "")
+        if v not in ("", None):
+            print(f"  {k:<15} {v}")
+    if t.get("hostable"):
+        print(f"\n  {GREEN}./bench up {t['id']}{RESET}  ->  "
+              f"http://localhost:{t['host_port']}")
+    else:
+        print(f"\n  {YELLOW}not hostable via Docker{RESET} -- see {t['path']}")
+
+
+def cmd_ports(cat, args):
+    print(f"{BOLD}Port map{RESET} (host -> target)")
+    for t in sorted([x for x in targets(cat) if x.get("hostable")],
+                    key=lambda x: x["host_port"]):
+        print(f"  {t['host_port']:<6} {t['id']:<26} "
+              f"{DIM}(container :{t['internal_port']}){RESET}")
+
+
+def cmd_status(cat, args):
+    if not docker_available():
+        die("docker not found on PATH")
+    print(f"{BOLD}Running bench containers{RESET}")
+    subprocess.run(["docker", "ps", "--filter", "label=bench=1",
+                    "--format", "table {{.Names}}\t{{.Ports}}\t{{.Status}}"])
+    print(f"\n{BOLD}Running bench compose projects{RESET}")
+    subprocess.run(["docker", "compose", "ls"])
+
+
+def cmd_logs(cat, args):
+    t = find(cat, args.id)
+    if not t:
+        die(f"unknown target '{args.id}'")
+    if t["run_method"] == "compose":
+        subprocess.run(compose_base_cmd(t) + ["logs", "--tail", "80",
+                       "-f" if args.follow else "--no-log-prefix"])
+    else:
+        cmd = ["docker", "logs", "--tail", "80", container_name(t)]
+        if args.follow:
+            cmd.insert(2, "-f")
+        subprocess.run(cmd)
+
+
+def cmd_doctor(cat, args):
+    ok = True
+    print(f"{BOLD}bench doctor{RESET}")
+    if docker_available():
+        v = subprocess.run(["docker", "--version"], capture_output=True,
+                           text=True).stdout.strip()
+        print(f"  {GREEN}✓{RESET} docker: {v}")
+        rc = subprocess.run(["docker", "info"], capture_output=True).returncode
+        if rc == 0:
+            print(f"  {GREEN}✓{RESET} docker daemon reachable")
+        else:
+            print(f"  {RED}✗{RESET} docker daemon not reachable")
+            ok = False
+    else:
+        print(f"  {RED}✗{RESET} docker not found on PATH")
+        ok = False
+    review = [t["id"] for t in targets(cat) if t.get("needs_review")]
+    print(f"  {'!' if review else GREEN+'✓'+RESET} "
+          f"{len(review)} target(s) flagged needs_review"
+          + (f": {', '.join(review)}" if review else ""))
+    ports = [t["host_port"] for t in targets(cat) if t.get("hostable")]
+    dupes = sorted({p for p in ports if ports.count(p) > 1})
+    if dupes:
+        print(f"  {RED}✗{RESET} host port collisions: {dupes}")
+        ok = False
+    else:
+        print(f"  {GREEN}✓{RESET} no host port collisions ({len(ports)} targets)")
+    sys.exit(0 if ok else 1)
+
+
+def cmd_up(cat, args):
+    if not docker_available():
+        die("docker not found on PATH")
+    chosen = select(cat, args.ids, args.domain, args.all)
+    rc = 0
+    for t in chosen:
+        rc |= up_one(t)
+    if len(chosen) > 1 or args.domain or args.all:
+        print(f"\n{BOLD}Started {len(chosen)} target(s).{RESET} "
+              f"'./bench status' to check.")
+    sys.exit(1 if rc else 0)
+
+
+def cmd_down(cat, args):
+    if not docker_available():
+        die("docker not found on PATH")
+    if args.all:
+        sys.exit(down_all())
+    chosen = select(cat, args.ids, args.domain, False)
+    rc = 0
+    for t in chosen:
+        rc |= down_one(t)
+    sys.exit(1 if rc else 0)
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="bench", description="Control the VAPT benchmark playground.")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    lp = sub.add_parser("list", help="list targets and their host ports")
+    lp.add_argument("--domain", help="filter by domain (web/api/cloud/...)")
+    lp.add_argument("--all", action="store_true", help="include offline targets")
+    lp.set_defaults(func=cmd_list)
+
+    ip = sub.add_parser("info", help="show one target's details")
+    ip.add_argument("id")
+    ip.set_defaults(func=cmd_info)
+
+    up = sub.add_parser("up", help="build/pull and start target(s)")
+    up.add_argument("ids", nargs="*", help="target id(s)")
+    up.add_argument("--domain", help="start every target in a domain")
+    up.add_argument("--all", action="store_true", help="start every target")
+    up.set_defaults(func=cmd_up)
+
+    dn = sub.add_parser("down", help="stop and remove target(s)")
+    dn.add_argument("ids", nargs="*", help="target id(s)")
+    dn.add_argument("--domain", help="stop every target in a domain")
+    dn.add_argument("--all", action="store_true", help="stop everything bench started")
+    dn.set_defaults(func=cmd_down)
+
+    sp = sub.add_parser("status", help="show running bench targets")
+    sp.set_defaults(func=cmd_status)
+
+    lg = sub.add_parser("logs", help="show a target's logs")
+    lg.add_argument("id")
+    lg.add_argument("-f", "--follow", action="store_true")
+    lg.set_defaults(func=cmd_logs)
+
+    pp = sub.add_parser("ports", help="print the full host port map")
+    pp.set_defaults(func=cmd_ports)
+
+    dr = sub.add_parser("doctor", help="environment + catalog sanity check")
+    dr.set_defaults(func=cmd_doctor)
+    return p
+
+
+def main():
+    parser = build_parser()
+    args = parser.parse_args()
+    cat = load_catalog()
+    args.func(cat, args)
+
+
+if __name__ == "__main__":
+    main()

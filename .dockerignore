@@ -1,0 +1,7 @@
+.git
+.bench
+docs
+tools
+*.md
+.gitignore
+Makefile
