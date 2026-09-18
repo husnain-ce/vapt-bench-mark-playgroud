@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Contribution guide
+    url: https://github.com/husnain-ce/vapt-bench-mark-playgroud/blob/main/CONTRIBUTING.md
+    about: How to scaffold, build, validate, and submit a target.

@@ -1,0 +1,56 @@
+name: New machine (target) proposal
+description: Propose a new vulnerable benchmark target
+title: "[machine] <domain>: <short title>"
+labels: ["new-machine"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for growing the corpus! If you can Dockerize it yourself, you can
+        skip this and open a PR directly (see CONTRIBUTING.md). Use this form to
+        propose a target, especially if you need a developer to package it.
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      options: [web, api, cloud, android, ios, machine]
+    validations: {required: true}
+  - type: input
+    id: vuln
+    attributes:
+      label: Vulnerability class (+ CWE)
+      placeholder: "SQL injection (CWE-89)"
+    validations: {required: true}
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Difficulty
+      options: [easy, medium, hard]
+    validations: {required: true}
+  - type: textarea
+    id: exploit
+    attributes:
+      label: Intended exploit path
+      description: Step-by-step of the intended solution.
+    validations: {required: true}
+  - type: input
+    id: flag
+    attributes:
+      label: Flag (if any)
+      placeholder: "f13{...}"
+  - type: dropdown
+    id: packaging
+    attributes:
+      label: Packaging status
+      options:
+        - "I will Dockerize and open a PR"
+        - "I need a developer to package it"
+    validations: {required: true}
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Ground rules
+      options:
+        - {label: "Self-contained (no external accounts / live services at solve time)", required: true}
+        - {label: "All secrets/flags are obviously fake", required: true}
+        - {label: "I have read docs/for-researchers.md", required: true}

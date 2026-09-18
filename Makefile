@@ -1,7 +1,7 @@
 # Convenience wrappers around the bench CLI and catalog generator.
 # `bench` is the primary interface; these are shortcuts.
 
-.PHONY: help catalog check validate doctor list ports status down-all new proxy proxy-down
+.PHONY: help catalog check validate doctor list ports status down-all new proxy proxy-down audit
 
 help:            ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -39,3 +39,6 @@ proxy:           ## Start the nginx reverse proxy for running targets
 
 proxy-down:      ## Stop the nginx reverse proxy
 	./bench proxy down
+
+audit:           ## Regenerate the corpus audit (docs/AUDIT.md)
+	./bench audit

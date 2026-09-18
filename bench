@@ -463,6 +463,11 @@ def cmd_new(cat, args):
     print(f"  3. ./bench up {tid}            # build and test it")
 
 
+def cmd_audit(cat, args):
+    sys.exit(subprocess.run(
+        [sys.executable, str(REPO / "tools" / "audit.py")]).returncode)
+
+
 def cmd_validate(cat, args):
     rc = subprocess.run([sys.executable, str(REPO / "tools" / "catalog.py"),
                          "--validate"]).returncode
@@ -659,6 +664,9 @@ def build_parser():
 
     vl = sub.add_parser("validate", help="validate manifests + catalog sync (CI)")
     vl.set_defaults(func=cmd_validate)
+
+    au = sub.add_parser("audit", help="regenerate the corpus audit (docs/AUDIT.md)")
+    au.set_defaults(func=cmd_audit)
 
     px = sub.add_parser("proxy", help="nginx reverse proxy for running targets")
     px.add_argument("action", choices=["up", "down"], help="start or stop the proxy")

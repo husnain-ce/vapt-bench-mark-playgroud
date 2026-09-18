@@ -1,15 +1,30 @@
-# __ID__
+# <aq-domain-benNN> — <short title>
 
 ## Vulnerability
-Describe the vulnerability class, category, and CWE.
+- **Class:** <e.g. SQL injection>
+- **Category:** <OWASP Top 10 item, e.g. A03: Injection>
+- **CWE:** <e.g. CWE-89>
 
 ## Difficulty
-easy | medium | hard
+<easy | medium | hard> — <one line on why>
+
+## Description
+<What the app is and where the vulnerability lives, in plausible-functionality terms.>
 
 ## Intended exploit path
-Step-by-step of the intended solution, and the flag if any.
+1. <step>
+2. <step>
+3. <the win — flag or proof>
+
+## Flag
+`f13{...}` — <where it lives> (omit if the target has no flag)
 
 ## Run
 ```bash
-./bench up __ID__
+./bench up <aq-domain-benNN>
+# open http://localhost:<host_port>/
+./bench down <aq-domain-benNN>
 ```
+
+## Remediation
+<One or two lines on the correct fix.>

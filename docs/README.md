@@ -9,8 +9,15 @@ Start here.
   up a target.
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** — how the catalog, scanner, and CLI
   fit together, and how to extend them.
+- **[for-researchers.md](for-researchers.md)** — for security researchers:
+  designing a good vulnerable target (classes, difficulty, flags).
+- **[for-developers.md](for-developers.md)** — for developers: packaging a
+  target into a self-contained Docker image `bench` can host.
 - **[TARGET_SPEC.md](TARGET_SPEC.md)** — the contribution contract: the
   `benchmark.yml` manifest and target layout everyone follows.
+- **[AUDIT.md](AUDIT.md)** — generated corpus health report (coverage, OWASP
+  categorisation, build-risk). Run `python3 tools/audit.py` to refresh.
+- **[ROADMAP.md](ROADMAP.md)** — how the corpus grows, tiered by priority.
 - **[TUNNELING.md](TUNNELING.md)** — exposing targets via the nginx proxy and
   cloudflared (quick and named tunnels).
 - **[SECURITY.md](SECURITY.md)** — isolation rules and safe-use guidance.

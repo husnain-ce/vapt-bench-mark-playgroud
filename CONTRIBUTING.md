@@ -4,6 +4,10 @@ Anyone can add a target. Every target is a **self-contained, Dockerized**
 directory that declares itself with a `benchmark.yml` manifest. The full
 contract is in [docs/TARGET_SPEC.md](docs/TARGET_SPEC.md).
 
+**Two ways in, by role:**
+- **Security researchers** (you have the vuln): [docs/for-researchers.md](docs/for-researchers.md).
+- **Developers** (you package it): [docs/for-developers.md](docs/for-developers.md).
+
 ## 1. Scaffold it
 
 ```bash

@@ -117,8 +117,11 @@ python3 tools/catalog.py     # register it
 ./bench up <id>              # build and test
 ```
 
-The contract is in [`docs/TARGET_SPEC.md`](docs/TARGET_SPEC.md); the full
-workflow in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Two role-based guides: [`docs/for-researchers.md`](docs/for-researchers.md)
+(designing the vuln) and [`docs/for-developers.md`](docs/for-developers.md)
+(packaging it). The contract is in [`docs/TARGET_SPEC.md`](docs/TARGET_SPEC.md),
+the full workflow in [`CONTRIBUTING.md`](CONTRIBUTING.md), and the current
+corpus health in [`docs/AUDIT.md`](docs/AUDIT.md).
 
 ## Expose a target (nginx + cloudflared)
 
@@ -167,6 +170,12 @@ vulnerable target is deliberate — read [`docs/SECURITY.md`](docs/SECURITY.md).
 - [`docs/HOSTING.md`](docs/HOSTING.md) — running targets with `bench`, troubleshooting
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — how the catalog + CLI fit together
 - [`docs/CATALOG.md`](docs/CATALOG.md) — the full target inventory (generated)
+- [`docs/AUDIT.md`](docs/AUDIT.md) — corpus health report (generated)
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — how the corpus grows, by priority
+- [`docs/for-researchers.md`](docs/for-researchers.md) — designing a target (security researchers)
+- [`docs/for-developers.md`](docs/for-developers.md) — packaging a target (developers)
+- [`docs/TARGET_SPEC.md`](docs/TARGET_SPEC.md) — the `benchmark.yml` contribution contract
+- [`docs/TUNNELING.md`](docs/TUNNELING.md) — nginx proxy + cloudflared exposure
 - [`docs/SECURITY.md`](docs/SECURITY.md) — isolation and safe-use guidance
 - [`docs/domains/`](docs/domains/) — per-domain notes (web, api, cloud, android, ios, machines)
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — adding a new target

@@ -19,6 +19,8 @@ jobs:
         run: python3 tools/catalog.py --validate
       - name: Catalog is in sync
         run: python3 tools/catalog.py --check
+      - name: Audit is in sync
+        run: python3 tools/audit.py --check
       - name: No port collisions
         run: ./bench doctor || true   # doctor also checks Docker; ports check is the gate
       - name: Port-collision gate
