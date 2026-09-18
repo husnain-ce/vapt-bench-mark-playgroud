@@ -1,0 +1,22 @@
+graph TD
+    M["benchmark.yml<br/>(per target)"]
+    SC["tools/catalog.py<br/>scanner + validator"]
+    AU["tools/audit.py<br/>health report"]
+    CAT[("catalog/benchmarks.yaml<br/>SOURCE OF TRUTH")]
+    BENCH["bench CLI"]
+    DOCS["docs/CATALOG.md<br/>docs/AUDIT.md"]
+    DOCKER["Docker<br/>compose / dockerfile / image / template"]
+    PROXY["nginx proxy<br/>Host-header routing"]
+    CF["cloudflared<br/>quick / named tunnel"]
+    CI["GitHub Actions CI"]
+
+    M --> SC
+    SC --> CAT
+    CAT --> AU
+    AU --> DOCS
+    SC --> DOCS
+    CAT --> BENCH
+    BENCH --> DOCKER
+    DOCKER --> PROXY
+    PROXY --> CF
+    CI -. validate + sync .-> CAT

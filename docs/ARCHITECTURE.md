@@ -5,13 +5,93 @@ that were each authored independently, in whatever shape their upstream source
 came in. The goal of the tooling layer is to make that corpus **uniformly
 discoverable and hostable** without rewriting every target.
 
-Three pieces do that, and they are deliberately decoupled:
+The design is a **hub-and-spoke around one declarative source of truth**
+(`catalog/benchmarks.yaml`): the scanner writes it, and the CLI, docs, and audit
+read it, so everything agrees by construction.
 
+## Architecture diagrams
+
+The diagrams below render inline on GitHub (native mermaid). The component
+diagram's source is also kept standalone at
+[`docs/diagrams/architecture.mmd`](diagrams/architecture.mmd); render it to
+SVG/PNG with any mermaid renderer, e.g.:
+
+```bash
+npx @mermaid-js/mermaid-cli -i docs/diagrams/architecture.mmd -o docs/diagrams/architecture.svg
 ```
- tools/catalog.py  --scans-->  catalog/benchmarks.yaml  --drives-->  ./bench
-   (generator)                    (source of truth)                 (orchestrator)
-                                        |
-                                        +--renders-->  docs/CATALOG.md
+
+### A. Components and data flow (the hub)
+
+```mermaid
+flowchart TB
+    subgraph contract["Contract layer"]
+        M["benchmark.yml<br/>(per target)"]
+    end
+    subgraph gen["Generation layer"]
+        SC["tools/catalog.py<br/>scanner + validator"]
+        AU["tools/audit.py<br/>health report"]
+    end
+    CAT[("catalog/benchmarks.yaml<br/><b>source of truth</b>")]
+    subgraph read["Read side"]
+        BENCH["bench CLI"]
+        DOCS["docs/CATALOG.md<br/>docs/AUDIT.md"]
+    end
+    subgraph rt["Runtime"]
+        DOCKER["Docker<br/>compose / dockerfile / image / template"]
+        PROXY["nginx proxy<br/>(Host-header routing)"]
+        CF["cloudflared<br/>quick / named tunnel"]
+    end
+    CI["GitHub Actions CI"]
+
+    M --> SC
+    SC --> CAT
+    CAT --> AU
+    AU --> DOCS
+    SC --> DOCS
+    CAT --> BENCH
+    BENCH --> DOCKER
+    DOCKER --> PROXY --> CF
+    CI -. "validate + sync check" .-> CAT
+```
+
+### B. Hosting dispatch (`bench up`)
+
+```mermaid
+flowchart LR
+    T["target"] --> RM{"run_method"}
+    RM -->|compose| C["own compose<br/>+ generated port override"]
+    RM -->|dockerfile| D["docker build + run"]
+    RM -->|image| I["docker run<br/>pinned image"]
+    RM -->|"native-python / node / php-static"| G["generic docker/ template"]
+    C --> H["published host port(s)<br/>from the catalog"]
+    D --> H
+    I --> H
+    G --> H
+```
+
+### C. Contribution flow (adding a machine)
+
+```mermaid
+flowchart LR
+    A["contributor"] --> B["bench new &lt;domain&gt;"]
+    B --> C["build vuln app<br/>+ benchmark.yml + README"]
+    C --> D["tools/catalog.py<br/>registers it"]
+    D --> E["bench up + curl<br/>verify the flag"]
+    E --> F["bench validate"]
+    F --> G["open PR"]
+    G --> H["CI: validate<br/>+ build changed"]
+    H --> I["merge → bench hosts it<br/>→ audit picks it up"]
+```
+
+### D. Exposure path (`bench proxy` + `bench tunnel`)
+
+```mermaid
+flowchart LR
+    U["viewer"] --> CF["cloudflared tunnel"]
+    CF --> NG["nginx proxy<br/>route by Host header"]
+    NG -->|"host.docker.internal:&lt;host_port&gt;"| TGT["target container"]
+    CF -.->|quick mode| Q["ephemeral trycloudflare URL<br/>(per target, no proxy)"]
+    NG -.->|named mode| N["&lt;id&gt;.&lt;base-domain&gt;<br/>on your own domain"]
 ```
 
 ## 1. The catalog (`catalog/benchmarks.yaml`)

@@ -40,3 +40,21 @@ refresh them.
 
 Every merged target should leave the coverage scorecard in [AUDIT.md](AUDIT.md)
 the same or better. That is the one metric to watch as the repo scales.
+
+## Tooling debt (architecture hardening)
+
+The architecture is sound (see [ARCHITECTURE.md](ARCHITECTURE.md)); these are
+maintainability items, tracked so they are not forgotten:
+
+- **Retire the scanner heuristics** as `benchmark.yml` manifests get backfilled,
+  so the manifest is the single source per target (today heuristics + manifest
+  coexist, manifest wins).
+- **Split `bench`** (~700 lines) into modules (dispatch / proxy / tunnel /
+  catalog-access) as it keeps growing.
+- **Add a tooling test suite** for `tools/catalog.py`, `bench`, and
+  `tools/audit.py` (manifest overlay, port assignment, multi-port blocks,
+  validation) so the core the whole system rests on is regression-tested.
+- **Pin ports per target** via manifest `host_port` where stability across
+  renumbering matters (default assignment is index-based).
+- **Exposure ergonomics:** make `bench tunnel --named` auto-detect the running
+  proxy port so it can't drift from `bench proxy --port`.
