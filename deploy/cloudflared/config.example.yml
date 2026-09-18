@@ -1,0 +1,22 @@
+# Named Cloudflare tunnel config (persistent subdomains on your own domain).
+#
+# Setup once:
+#   cloudflared tunnel login
+#   cloudflared tunnel create bench
+#   # add a wildcard DNS route so *.lab.example.com hits the tunnel:
+#   cloudflared tunnel route dns bench "*.lab.example.com"
+#
+# Then copy this file to deploy/cloudflared/config.yml, set tunnel + domain,
+# and run:  bench tunnel --named --all
+#
+tunnel: bench
+credentials-file: /root/.cloudflared/<TUNNEL-UUID>.json
+
+# base domain used to build <id>.<base> hostnames
+base_domain: lab.example.com
+
+# bench generates the ingress rules from running, exposed targets and appends
+# the required catch-all. It points every <id>.<base> at the nginx proxy, which
+# routes by Host header to the right target.
+ingress:
+  - service: http://localhost:80    # the bench nginx proxy

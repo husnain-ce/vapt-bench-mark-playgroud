@@ -38,3 +38,7 @@ venv/
 
 # bench CLI runtime overrides
 .bench/
+
+# tunnel secrets / generated proxy config
+deploy/cloudflared/config.yml
+deploy/cloudflared/generated-config.yml

@@ -1,0 +1,57 @@
+name: validate-targets
+
+on:
+  pull_request:
+  push:
+    branches: [dev, main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: python3 -m pip install pyyaml
+      - name: Validate target manifests
+        run: python3 tools/catalog.py --validate
+      - name: Catalog is in sync
+        run: python3 tools/catalog.py --check
+      - name: No port collisions
+        run: ./bench doctor || true   # doctor also checks Docker; ports check is the gate
+      - name: Port-collision gate
+        run: |
+          python3 - <<'PY'
+          import yaml, sys
+          d = yaml.safe_load(open('catalog/benchmarks.yaml'))
+          ports = [t['host_port'] for t in d['targets'] if t.get('hostable')]
+          dupes = sorted({p for p in ports if ports.count(p) > 1})
+          if dupes:
+              print("host port collisions:", dupes); sys.exit(1)
+          print("no port collisions across", len(ports), "targets")
+          PY
+
+  build-changed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build targets whose files changed in this PR
+        run: |
+          set -e
+          base="${{ github.event.pull_request.base.sha }}"
+          [ -z "$base" ] && base="HEAD~1"
+          changed=$(git diff --name-only "$base"...HEAD | grep -E '^(Web|API|Cloud)/aq-' | cut -d/ -f1-2 | sort -u || true)
+          if [ -z "$changed" ]; then echo "no target dirs changed"; exit 0; fi
+          for d in $changed; do
+            if [ -f "$d/Dockerfile" ]; then
+              echo "::group::build $d"; docker build -t "test/$(basename $d)" "$d" || exit 1; echo "::endgroup::"
+            elif ls "$d"/*compose*.y*ml >/dev/null 2>&1 || ls "$d"/docker-compose.y*ml >/dev/null 2>&1; then
+              echo "::group::build (compose) $d"; docker compose -f "$(ls $d/*compose*.y*ml $d/docker-compose.y*ml 2>/dev/null | head -1)" build || exit 1; echo "::endgroup::"
+            else
+              echo "$d: no Dockerfile/compose to build (source target)"
+            fi
+          done

@@ -9,6 +9,10 @@ Start here.
   up a target.
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** — how the catalog, scanner, and CLI
   fit together, and how to extend them.
+- **[TARGET_SPEC.md](TARGET_SPEC.md)** — the contribution contract: the
+  `benchmark.yml` manifest and target layout everyone follows.
+- **[TUNNELING.md](TUNNELING.md)** — exposing targets via the nginx proxy and
+  cloudflared (quick and named tunnels).
 - **[SECURITY.md](SECURITY.md)** — isolation rules and safe-use guidance.
   These targets are intentionally vulnerable; read this before running anything.
 - **[CATALOG.md](CATALOG.md)** — the full inventory of every target, its host

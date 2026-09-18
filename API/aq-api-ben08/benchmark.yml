@@ -1,0 +1,10 @@
+# Example manifest on an existing target -- see docs/TARGET_SPEC.md.
+id: aq-api-ben08
+domain: api
+title: "Node API challenge"
+vuln_class: "API logic / auth flaw"
+difficulty: medium
+run: native-node
+port: 9014
+expose: true
+author: aqsec

@@ -26,6 +26,7 @@ Only Python 3.8+, PyYAML, and Docker are required.
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import subprocess
 import sys
@@ -39,12 +40,17 @@ except ImportError:
 REPO = Path(__file__).resolve().parent
 CATALOG = REPO / "catalog" / "benchmarks.yaml"
 OVERRIDE_DIR = REPO / ".bench"
+NGINX_CONF_DIR = OVERRIDE_DIR / "nginx" / "conf.d"
+TEMPLATE_DIR = REPO / "templates"
+DEPLOY = REPO / "deploy"
 TEMPLATES = {
     "native-python": REPO / "docker" / "python.Dockerfile",
     "native-node": REPO / "docker" / "node.Dockerfile",
     "php-static": REPO / "docker" / "php.Dockerfile",
 }
 ENTRY_CANDIDATES = ["app.py", "main.py", "server.py", "server.js", "index.js"]
+DOMAIN_DIR = {"web": "Web", "api": "API", "cloud": "Cloud"}
+PROXY_NAME = "bench-proxy"
 
 # ANSI helpers (disabled when not a TTY)
 def _c(code):
@@ -57,6 +63,13 @@ BOLD, DIM, GREEN, YELLOW, RED, CYAN, RESET = (
 def die(msg: str, code: int = 1):
     print(f"{RED}error:{RESET} {msg}", file=sys.stderr)
     sys.exit(code)
+
+
+def rel(p: Path) -> str:
+    try:
+        return str(p.relative_to(REPO))
+    except ValueError:
+        return str(p)
 
 
 def load_catalog() -> dict:
@@ -410,6 +423,192 @@ def cmd_down(cat, args):
     sys.exit(1 if rc else 0)
 
 
+# --------------------------------------------------------------------------- #
+# scaffolding: bench new
+# --------------------------------------------------------------------------- #
+def next_free_index(cat, domain) -> int:
+    used = [int(re.search(r"ben(\d+)$", t["id"]).group(1))
+            for t in targets(cat)
+            if t["domain"] == domain and re.search(r"ben(\d+)$", t["id"])]
+    return (max(used) + 1) if used else 1
+
+
+def cmd_new(cat, args):
+    domain = args.domain
+    if domain not in DOMAIN_DIR:
+        die(f"--domain must be one of: {', '.join(DOMAIN_DIR)}")
+    tmpl = TEMPLATE_DIR / args.template
+    if not tmpl.is_dir():
+        die(f"unknown template '{args.template}' "
+            f"(have: {', '.join(p.name for p in TEMPLATE_DIR.iterdir())})")
+    idx = next_free_index(cat, domain)
+    tid = args.id or f"aq-{domain}-ben{idx:02d}"
+    dest = REPO / DOMAIN_DIR[domain] / tid
+    if dest.exists():
+        die(f"{rel(dest)} already exists")
+    dest.mkdir(parents=True)
+    author = args.author or "your-handle"
+    for src in sorted(tmpl.rglob("*")):
+        if src.is_dir():
+            (dest / src.relative_to(tmpl)).mkdir(exist_ok=True)
+            continue
+        text = src.read_text(errors="ignore")
+        text = (text.replace("__ID__", tid).replace("__DOMAIN__", domain)
+                    .replace("__AUTHOR__", author))
+        (dest / src.relative_to(tmpl)).write_text(text)
+    print(f"{GREEN}Created{RESET} {rel(dest)} from template '{args.template}'.")
+    print("Next steps:")
+    print(f"  1. edit {rel(dest)}/benchmark.yml and the app to add the vuln")
+    print(f"  2. python3 tools/catalog.py     # register it")
+    print(f"  3. ./bench up {tid}            # build and test it")
+
+
+def cmd_validate(cat, args):
+    rc = subprocess.run([sys.executable, str(REPO / "tools" / "catalog.py"),
+                         "--validate"]).returncode
+    chk = subprocess.run([sys.executable, str(REPO / "tools" / "catalog.py"),
+                          "--check"], capture_output=True, text=True)
+    if chk.stdout.strip() != "up-to-date":
+        print(f"{RED}✗{RESET} catalog out of date -- run: python3 tools/catalog.py")
+        rc = 1
+    else:
+        print(f"{GREEN}✓{RESET} catalog up to date")
+    sys.exit(1 if rc else 0)
+
+
+# --------------------------------------------------------------------------- #
+# reverse proxy: bench proxy
+# --------------------------------------------------------------------------- #
+def running_ids() -> set[str]:
+    out = subprocess.run(
+        ["docker", "ps", "--filter", "label=bench=1", "--format", "{{.Names}}"],
+        capture_output=True, text=True).stdout.split()
+    ids = {n[len("bench-"):] for n in out if n.startswith("bench-")}
+    # compose targets: project bench-<id>
+    proj = subprocess.run(["docker", "compose", "ls", "--format", "json"],
+                          capture_output=True, text=True).stdout
+    try:
+        import json
+        for p in json.loads(proj or "[]"):
+            name = p.get("Name", "")
+            if name.startswith("bench-"):
+                ids.add(name[len("bench-"):])
+    except ValueError:
+        pass
+    return ids
+
+
+def cmd_proxy(cat, args):
+    if not docker_available():
+        die("docker not found on PATH")
+    if args.action == "down":
+        sys.exit(run(["docker", "rm", "-f", PROXY_NAME]))
+    base = args.base
+    tmpl = (DEPLOY / "nginx" / "templates" / "target.conf.tmpl").read_text()
+    NGINX_CONF_DIR.mkdir(parents=True, exist_ok=True)
+    for old in NGINX_CONF_DIR.glob("*.conf"):
+        old.unlink()
+    live = running_ids()
+    by_id = {t["id"]: t for t in targets(cat)}
+    routed = []
+    for tid in sorted(live):
+        t = by_id.get(tid)
+        if not t or not t.get("expose", True) or not t.get("host_port"):
+            continue
+        conf = (tmpl.replace("__ID__", tid).replace("__BASE__", base)
+                    .replace("__HOST_PORT__", str(t["host_port"])))
+        (NGINX_CONF_DIR / f"{tid}.conf").write_text(conf)
+        routed.append((tid, t["host_port"]))
+    if not routed:
+        print(f"{YELLOW}No running, exposed targets to route.{RESET} "
+              f"Start one with './bench up <id>' first.")
+    # (re)start nginx
+    subprocess.run(["docker", "rm", "-f", PROXY_NAME], capture_output=True)
+    rc = run(["docker", "run", "-d", "--name", PROXY_NAME,
+              "--add-host", "host.docker.internal:host-gateway",
+              "-p", f"{args.port}:80",
+              "-v", f"{DEPLOY/'nginx'/'nginx.conf'}:/etc/nginx/nginx.conf:ro",
+              "-v", f"{NGINX_CONF_DIR}:/etc/nginx/conf.d:ro",
+              "nginx:alpine"])
+    if rc == 0:
+        print(f"\n{BOLD}Proxy up on :{args.port}{RESET}. Routed hosts:")
+        for tid, hp in routed:
+            print(f"  http://{tid}.{base}  ->  target :{hp}")
+        print(f"\n{DIM}Add '<id>.{base}' to /etc/hosts (127.0.0.1) for local "
+              f"use, or expose with: ./bench tunnel --named --all{RESET}")
+    sys.exit(rc)
+
+
+# --------------------------------------------------------------------------- #
+# tunneling: bench tunnel
+# --------------------------------------------------------------------------- #
+def cmd_tunnel(cat, args):
+    if shutil.which("cloudflared") is None:
+        die("cloudflared not found on PATH -- install it from "
+            "https://github.com/cloudflare/cloudflared")
+    if args.named:
+        return tunnel_named(cat, args)
+    # quick tunnel to a single target
+    if not args.id:
+        die("quick tunnel needs a target id: ./bench tunnel <id>")
+    t = find(cat, args.id)
+    if not t:
+        die(f"unknown target '{args.id}'")
+    if not t.get("host_port"):
+        die(f"{t['id']} has no host port to tunnel")
+    print(f"{BOLD}Quick tunnel{RESET} -> {t['id']} "
+          f"(http://localhost:{t['host_port']})")
+    print(f"{DIM}Ephemeral trycloudflare.com URL prints below; Ctrl-C to stop.{RESET}")
+    os_exec(["cloudflared", "tunnel", "--url",
+             f"http://localhost:{t['host_port']}"])
+
+
+def tunnel_named(cat, args):
+    cfg = DEPLOY / "cloudflared" / "config.yml"
+    if not cfg.exists():
+        die("named tunnel needs deploy/cloudflared/config.yml -- copy "
+            "config.example.yml, set your tunnel + base_domain, then retry")
+    raw = yaml.safe_load(cfg.read_text()) or {}
+    base = raw.get("base_domain", "lab.example.com")
+    live = running_ids()
+    by_id = {t["id"]: t for t in targets(cat)}
+    if args.all:
+        candidates = [t["id"] for t in targets(cat)]
+    elif args.id:
+        candidates = [args.id]
+    else:
+        die("named tunnel needs a target id or --all")
+        return
+    ingress = []
+    for tid in sorted(set(candidates) & live):
+        t = by_id.get(tid)
+        if not t or not t.get("expose", True):
+            continue
+        ingress.append({"hostname": f"{tid}.{base}",
+                        "service": "http://localhost:%d" % args.port})
+    if not ingress:
+        die("no running, exposed targets to route -- './bench up' them first, "
+            "then './bench proxy up' before tunnelling")
+    ingress.append({"service": "http_status:404"})
+    generated = dict(raw)
+    generated["ingress"] = ingress
+    out = DEPLOY / "cloudflared" / "generated-config.yml"
+    out.write_text(yaml.safe_dump(generated, sort_keys=False))
+    print(f"{BOLD}Named tunnel{RESET}: wrote {rel(out)} with "
+          f"{len(ingress)-1} hostname(s) on *.{base}")
+    print(f"{DIM}Routes go through the nginx proxy on :{args.port} "
+          f"(run './bench proxy up --base {base}' first). Ctrl-C to stop.{RESET}")
+    os_exec(["cloudflared", "tunnel", "--config", str(out), "run"])
+
+
+def os_exec(cmd):
+    print(f"{DIM}$ {' '.join(cmd)}{RESET}")
+    try:
+        subprocess.run(cmd)
+    except KeyboardInterrupt:
+        pass
+
+
 def build_parser():
     p = argparse.ArgumentParser(
         prog="bench", description="Control the VAPT benchmark playground.")
@@ -449,6 +648,35 @@ def build_parser():
 
     dr = sub.add_parser("doctor", help="environment + catalog sanity check")
     dr.set_defaults(func=cmd_doctor)
+
+    nw = sub.add_parser("new", help="scaffold a new target from a template")
+    nw.add_argument("domain", help="web | api | cloud")
+    nw.add_argument("--template", default="dockerfile",
+                    help="dockerfile | compose | python (default: dockerfile)")
+    nw.add_argument("--id", help="explicit target id (default: next aq-<domain>-benNN)")
+    nw.add_argument("--author", help="your handle, written into the manifest")
+    nw.set_defaults(func=cmd_new)
+
+    vl = sub.add_parser("validate", help="validate manifests + catalog sync (CI)")
+    vl.set_defaults(func=cmd_validate)
+
+    px = sub.add_parser("proxy", help="nginx reverse proxy for running targets")
+    px.add_argument("action", choices=["up", "down"], help="start or stop the proxy")
+    px.add_argument("--base", default="lab.local",
+                    help="base domain for <id>.<base> routing (default: lab.local)")
+    px.add_argument("--port", type=int, default=8080,
+                    help="host port for the proxy (default: 8080)")
+    px.set_defaults(func=cmd_proxy)
+
+    tn = sub.add_parser("tunnel", help="expose target(s) via cloudflared")
+    tn.add_argument("id", nargs="?", help="target id (quick tunnel)")
+    tn.add_argument("--named", action="store_true",
+                    help="use the named tunnel on your own domain")
+    tn.add_argument("--all", action="store_true",
+                    help="named mode: include all running exposed targets")
+    tn.add_argument("--port", type=int, default=8080,
+                    help="named mode: the nginx proxy port (default: 8080)")
+    tn.set_defaults(func=cmd_tunnel)
     return p
 
 

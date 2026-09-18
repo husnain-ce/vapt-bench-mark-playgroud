@@ -1,0 +1,11 @@
+# Example manifest on an existing target -- see docs/TARGET_SPEC.md.
+id: aq-web-ben53
+domain: web
+title: "PHP file-read challenge"
+vuln_class: "Local file read / info disclosure"
+difficulty: easy
+run: compose
+compose_file: docker-compose.yml
+port: 80
+expose: true
+author: aqsec

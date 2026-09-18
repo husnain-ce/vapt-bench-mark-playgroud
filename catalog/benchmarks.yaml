@@ -35,6 +35,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben02
   domain: web
@@ -52,6 +53,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben03
   domain: web
@@ -69,6 +71,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben04
   domain: web
@@ -86,6 +89,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben05
   domain: web
@@ -103,6 +107,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben06
   domain: web
@@ -120,6 +125,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben07
   domain: web
@@ -137,6 +143,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben08
   domain: web
@@ -154,6 +161,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben09
   domain: web
@@ -171,6 +179,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben10
   domain: web
@@ -188,6 +197,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben11
   domain: web
@@ -205,6 +215,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben12
   domain: web
@@ -222,6 +233,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben13
   domain: web
@@ -239,6 +251,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben14
   domain: web
@@ -256,6 +269,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben15
   domain: web
@@ -273,6 +287,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben16
   domain: web
@@ -290,6 +305,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben17
   domain: web
@@ -307,6 +323,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben18
   domain: web
@@ -324,6 +341,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben19
   domain: web
@@ -341,6 +359,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben20
   domain: web
@@ -358,6 +377,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben21
   domain: web
@@ -375,6 +395,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben22
   domain: web
@@ -392,6 +413,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben23
   domain: web
@@ -409,6 +431,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben24
   domain: web
@@ -426,6 +449,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben25
   domain: web
@@ -443,6 +467,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben26
   domain: web
@@ -460,6 +485,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben27
   domain: web
@@ -477,6 +503,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben28
   domain: web
@@ -494,6 +521,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben29
   domain: web
@@ -511,6 +539,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben30
   domain: web
@@ -528,6 +557,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben31
   domain: web
@@ -545,6 +575,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben32
   domain: web
@@ -562,6 +593,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben33
   domain: web
@@ -579,6 +611,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben34
   domain: web
@@ -596,6 +629,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben35
   domain: web
@@ -613,6 +647,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben36
   domain: web
@@ -630,6 +665,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben37
   domain: web
@@ -647,6 +683,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben38
   domain: web
@@ -664,6 +701,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben39
   domain: web
@@ -681,6 +719,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben40
   domain: web
@@ -698,6 +737,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben41
   domain: web
@@ -715,6 +755,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben42
   domain: web
@@ -732,6 +773,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben43
   domain: web
@@ -749,6 +791,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben44
   domain: web
@@ -766,6 +809,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben45
   domain: web
@@ -783,6 +827,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben46
   domain: web
@@ -800,6 +845,7 @@ targets:
   hostable: false
   needs_review: true
   enabled: true
+  expose: false
   notes: ''
 - id: aq-web-ben47
   domain: web
@@ -817,6 +863,7 @@ targets:
   hostable: false
   needs_review: true
   enabled: true
+  expose: false
   notes: ''
 - id: aq-web-ben48
   domain: web
@@ -834,6 +881,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben49
   domain: web
@@ -851,6 +899,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben50
   domain: web
@@ -868,6 +917,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben51
   domain: web
@@ -885,6 +935,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben52
   domain: web
@@ -902,13 +953,14 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben53
   domain: web
   path: Web/aq-web-ben53
-  title: aq-web-ben53
-  vuln_class: ''
-  difficulty: ''
+  title: PHP file-read challenge
+  vuln_class: Local file read / info disclosure
+  difficulty: easy
   run_method: compose
   host_port: 8153
   internal_port: 80
@@ -919,7 +971,10 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
+  has_manifest: true
+  author: aqsec
 - id: aq-web-ben54
   domain: web
   path: Web/aq-web-ben54
@@ -936,6 +991,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben55
   domain: web
@@ -953,6 +1009,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben56
   domain: web
@@ -970,6 +1027,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben57
   domain: web
@@ -987,6 +1045,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben58
   domain: web
@@ -1004,6 +1063,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben59
   domain: web
@@ -1021,6 +1081,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben60
   domain: web
@@ -1038,6 +1099,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben61
   domain: web
@@ -1055,6 +1117,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben62
   domain: web
@@ -1072,6 +1135,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben63
   domain: web
@@ -1089,6 +1153,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben64
   domain: web
@@ -1106,6 +1171,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben65
   domain: web
@@ -1123,6 +1189,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben66
   domain: web
@@ -1140,6 +1207,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-web-ben67
   domain: web
@@ -1157,6 +1225,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben01
   domain: api
@@ -1175,6 +1244,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben02
   domain: api
@@ -1192,6 +1262,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben03
   domain: api
@@ -1209,6 +1280,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben04
   domain: api
@@ -1226,6 +1298,7 @@ targets:
   hostable: false
   needs_review: true
   enabled: true
+  expose: false
   notes: ''
 - id: aq-api-ben05
   domain: api
@@ -1244,6 +1317,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben06
   domain: api
@@ -1262,6 +1336,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben07
   domain: api
@@ -1279,14 +1354,14 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben08
   domain: api
   path: API/aq-api-ben08
-  title: "Target 14. Proto-Pollute-API \u2014 REST (Node.js, zero dependencies) \u2705 (verified working\
-    \ via n"
-  vuln_class: application/json' -d '{"__proto__":{"isAdmin":true}}'
-  difficulty: ''
+  title: Node API challenge
+  vuln_class: API logic / auth flaw
+  difficulty: medium
   run_method: native-node
   host_port: 8308
   internal_port: 9014
@@ -1297,7 +1372,10 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
+  has_manifest: true
+  author: aqsec
 - id: aq-api-ben09
   domain: api
   path: API/aq-api-ben09
@@ -1315,6 +1393,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben10
   domain: api
@@ -1333,6 +1412,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben11
   domain: api
@@ -1350,6 +1430,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben12
   domain: api
@@ -1367,6 +1448,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben13
   domain: api
@@ -1384,6 +1466,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-api-ben14
   domain: api
@@ -1401,14 +1484,14 @@ targets:
   hostable: false
   needs_review: true
   enabled: true
+  expose: false
   notes: ''
 - id: aq-cloud-ben01
   domain: cloud
   path: Cloud/aq-cloud-ben01
-  title: "Cloud Lab 01. AWS-S3-Public-Loot \u2014 Flask (Python), self-contained \u2705 (exploit verified\
-    \ on t"
-  vuln_class: "Public S3 bucket (read) \u2014 acme-public-assets allows anonymous ListBucket +"
-  difficulty: ''
+  title: AWS S3 Public Loot
+  vuln_class: Public S3 bucket read/write; sensitive data exposure
+  difficulty: easy
   run_method: native-python
   host_port: 8501
   internal_port: 9131
@@ -1419,7 +1502,10 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
+  has_manifest: true
+  author: aqsec
 - id: aq-cloud-ben02
   domain: cloud
   path: Cloud/aq-cloud-ben02
@@ -1436,6 +1522,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-cloud-ben03
   domain: cloud
@@ -1454,6 +1541,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-cloud-ben04
   domain: cloud
@@ -1472,6 +1560,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-cloud-ben05
   domain: cloud
@@ -1489,6 +1578,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-cloud-ben06
   domain: cloud
@@ -1507,6 +1597,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-cloud-ben07
   domain: cloud
@@ -1525,6 +1616,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-cloud-ben08
   domain: cloud
@@ -1543,6 +1635,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-cloud-ben09
   domain: cloud
@@ -1561,6 +1654,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: ''
 - id: aq-cloud-ben10
   domain: cloud
@@ -1578,6 +1672,7 @@ targets:
   hostable: false
   needs_review: true
   enabled: true
+  expose: false
   notes: ''
 - id: aq-web-owasp-suite
   domain: web
@@ -1596,6 +1691,7 @@ targets:
   hostable: true
   needs_review: false
   enabled: true
+  expose: true
   notes: Portal on :5200; DVWA :5201, Juice :5202, WebGoat (via proxy) :5203, BodgeIt :5204, WebWolf :5205.
     Runs on its own native ports (not remapped).
 offline:
@@ -1607,6 +1703,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben02
   domain: android
   path: android/aq-android-ben02
@@ -1615,6 +1712,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben03
   domain: android
   path: android/aq-android-ben03
@@ -1623,6 +1721,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben04
   domain: android
   path: android/aq-android-ben04
@@ -1631,6 +1730,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben05
   domain: android
   path: android/aq-android-ben05
@@ -1639,6 +1739,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben06
   domain: android
   path: android/aq-android-ben06
@@ -1647,6 +1748,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben07
   domain: android
   path: android/aq-android-ben07
@@ -1655,6 +1757,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben08
   domain: android
   path: android/aq-android-ben08
@@ -1663,6 +1766,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben09
   domain: android
   path: android/aq-android-ben09
@@ -1671,6 +1775,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben10
   domain: android
   path: android/aq-android-ben10
@@ -1679,6 +1784,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben11
   domain: android
   path: android/aq-android-ben11
@@ -1687,6 +1793,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben12
   domain: android
   path: android/aq-android-ben12
@@ -1695,6 +1802,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben13
   domain: android
   path: android/aq-android-ben13
@@ -1703,6 +1811,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben14
   domain: android
   path: android/aq-android-ben14
@@ -1711,6 +1820,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben15
   domain: android
   path: android/aq-android-ben15
@@ -1719,6 +1829,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben16
   domain: android
   path: android/aq-android-ben16
@@ -1727,6 +1838,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben17
   domain: android
   path: android/aq-android-ben17
@@ -1735,6 +1847,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben18
   domain: android
   path: android/aq-android-ben18
@@ -1743,6 +1856,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-android-ben19
   domain: android
   path: android/aq-android-ben19
@@ -1751,6 +1865,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben01
   domain: ios
   path: ios/aq-ios-ben01
@@ -1759,6 +1874,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben02
   domain: ios
   path: ios/aq-ios-ben02
@@ -1767,6 +1883,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben03
   domain: ios
   path: ios/aq-ios-ben03
@@ -1775,6 +1892,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben04
   domain: ios
   path: ios/aq-ios-ben04
@@ -1783,6 +1901,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben05
   domain: ios
   path: ios/aq-ios-ben05
@@ -1791,6 +1910,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben06
   domain: ios
   path: ios/aq-ios-ben06
@@ -1799,6 +1919,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben07
   domain: ios
   path: ios/aq-ios-ben07
@@ -1807,6 +1928,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben08
   domain: ios
   path: ios/aq-ios-ben08
@@ -1815,6 +1937,7 @@ offline:
   difficulty: Easy
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben09
   domain: ios
   path: ios/aq-ios-ben09
@@ -1823,6 +1946,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben10
   domain: ios
   path: ios/aq-ios-ben10
@@ -1831,6 +1955,7 @@ offline:
   difficulty: Easy
   run_method: external
   hostable: false
+  expose: false
 - id: aq-ios-ben11
   domain: ios
   path: ios/aq-ios-ben11
@@ -1839,6 +1964,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: Metasploitable2
   domain: machine
   path: Machines/Metasploitable2
@@ -1847,6 +1973,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: Momentum
   domain: machine
   path: Machines/Momentum
@@ -1855,6 +1982,7 @@ offline:
   difficulty: Medium
   run_method: external
   hostable: false
+  expose: false
 - id: Evilbox
   domain: machine
   path: Machines/Evilbox
@@ -1863,6 +1991,7 @@ offline:
   difficulty: Easy
   run_method: external
   hostable: false
+  expose: false
 - id: Chronos
   domain: machine
   path: Machines/Chronos
@@ -1871,6 +2000,7 @@ offline:
   difficulty: Medium
   run_method: external
   hostable: false
+  expose: false
 - id: Hacksudo
   domain: machine
   path: Machines/Hacksudo
@@ -1879,6 +2009,7 @@ offline:
   difficulty: ''
   run_method: external
   hostable: false
+  expose: false
 - id: DoubleTrouble
   domain: machine
   path: Machines/DoubleTrouble
@@ -1887,3 +2018,4 @@ offline:
   difficulty: Easy
   run_method: external
   hostable: false
+  expose: false

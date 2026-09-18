@@ -1,0 +1,27 @@
+# Optional: run the nginx proxy (and, in named mode, cloudflared) as a stack.
+# `bench proxy up` manages nginx directly; this file is provided for users who
+# prefer plain compose or want the named-tunnel stack in one place.
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: bench-proxy
+    ports:
+      - "8080:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../.bench/nginx/conf.d:/etc/nginx/conf.d:ro
+    restart: unless-stopped
+
+  # Named tunnel (requires deploy/cloudflared/config.yml + credentials).
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: bench-cloudflared
+    command: tunnel --config /etc/cloudflared/config.yml run
+    network_mode: host
+    volumes:
+      - ./cloudflared:/etc/cloudflared:ro
+      - ${HOME}/.cloudflared:/root/.cloudflared:ro
+    restart: unless-stopped
+    profiles: ["named"]

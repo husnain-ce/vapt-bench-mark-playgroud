@@ -224,6 +224,50 @@ def ben_index(name: str) -> int:
     return int(m.group(1)) if m else 0
 
 
+MANIFEST_NAME = "benchmark.yml"
+VALID_DOMAINS = {"web", "api", "cloud", "android", "ios", "machine"}
+VALID_RUN = {"compose", "dockerfile", "image", "native-python",
+             "native-node", "php-static", "external", "manual"}
+
+
+def load_manifest(target: Path) -> dict | None:
+    """Load a target's benchmark.yml, or None if absent."""
+    path = target / MANIFEST_NAME
+    if not path.exists():
+        return None
+    try:
+        data = yaml.safe_load(path.read_text(errors="ignore"))
+    except yaml.YAMLError:
+        return {"_error": "invalid YAML"}
+    return data if isinstance(data, dict) else {"_error": "not a mapping"}
+
+
+def overlay_manifest(entry: dict, target: Path) -> None:
+    """Overlay a target's declared benchmark.yml onto its scanned entry.
+
+    A present manifest is authoritative: any field it declares wins over the
+    heuristic guess. Fields it omits are left as scanned. A target that
+    declares a manifest is never flagged needs_review.
+    """
+    m = load_manifest(target)
+    if not m or "_error" in (m or {}):
+        return
+    entry["has_manifest"] = True
+    field_map = {
+        "title": "title", "vuln_class": "vuln_class", "difficulty": "difficulty",
+        "run": "run_method", "port": "internal_port", "host_port": "host_port",
+        "image": "image", "flag": "flag", "expose": "expose", "author": "author",
+    }
+    for src, dst in field_map.items():
+        if src in m and m[src] not in (None, ""):
+            entry[dst] = m[src]
+    if "compose_file" in m and m["compose_file"]:
+        entry["compose_file"] = rel(target / m["compose_file"])
+    if entry.get("run_method") not in ("manual", "external"):
+        entry["hostable"] = True
+    entry["needs_review"] = False
+
+
 def scan():
     entries = []
     for domain, cfg in NETWORK_DOMAINS.items():
@@ -267,8 +311,10 @@ def scan():
                 "hostable": run_method != "manual",
                 "needs_review": needs_review,
                 "enabled": True,
+                "expose": run_method != "manual",
                 "notes": "",
             }
+            overlay_manifest(entry, target)
             entries.append(entry)
 
     # OWASP flagship suite: a single curated compose stack (DVWA + DB, Juice
@@ -294,6 +340,7 @@ def scan():
             "hostable": True,
             "needs_review": False,
             "enabled": True,
+            "expose": True,
             "notes": "Portal on :5200; DVWA :5201, Juice :5202, WebGoat "
                      "(via proxy) :5203, BodgeIt :5204, WebWolf :5205. "
                      "Runs on its own native ports (not remapped).",
@@ -317,8 +364,48 @@ def scan():
                 "difficulty": difficulty or "",
                 "run_method": "external",
                 "hostable": False,
+                "expose": False,
             })
     return entries, offline
+
+
+def validate_all():
+    """Validate every target's manifest (if present). Returns a list of
+    human-readable error strings; empty means valid."""
+    errors = []
+    for domain in list(NETWORK_DOMAINS) + list(OFFLINE_DOMAINS):
+        ddir = REPO / domain
+        if not ddir.is_dir():
+            continue
+        for target in sorted(ddir.iterdir()):
+            if not target.is_dir() or target.name.startswith("."):
+                continue
+            m = load_manifest(target)
+            if m is None:
+                continue  # heuristic-only target; allowed for existing targets
+            where = rel(target / MANIFEST_NAME)
+            if "_error" in m:
+                errors.append(f"{where}: {m['_error']}")
+                continue
+            if m.get("id") and m["id"] != target.name:
+                errors.append(f"{where}: id '{m['id']}' != folder '{target.name}'")
+            dom = m.get("domain")
+            if dom and dom not in VALID_DOMAINS:
+                errors.append(f"{where}: invalid domain '{dom}'")
+            run = m.get("run")
+            if run and run not in VALID_RUN:
+                errors.append(f"{where}: invalid run '{run}'")
+            if run == "compose" and not m.get("compose_file"):
+                errors.append(f"{where}: run: compose requires compose_file")
+            if run == "image" and not m.get("image"):
+                errors.append(f"{where}: run: image requires image")
+            port = m.get("port")
+            if port is not None and not (isinstance(port, int) and 1 <= port <= 65535):
+                errors.append(f"{where}: port must be 1-65535")
+            diff = m.get("difficulty")
+            if diff and str(diff).lower() not in ("easy", "medium", "hard"):
+                errors.append(f"{where}: difficulty must be easy|medium|hard")
+    return errors
 
 
 def merge_existing(new_entries, catalog_path: Path):
@@ -399,10 +486,22 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--check", action="store_true",
                     help="exit non-zero if outputs would change")
+    ap.add_argument("--validate", action="store_true",
+                    help="validate target manifests; exit non-zero on errors")
     args = ap.parse_args()
 
     catalog_path = REPO / "catalog" / "benchmarks.yaml"
     md_path = REPO / "docs" / "CATALOG.md"
+
+    if args.validate:
+        errs = validate_all()
+        if errs:
+            print("manifest validation FAILED:")
+            for e in errs:
+                print(f"  - {e}")
+            sys.exit(1)
+        print("all target manifests valid")
+        sys.exit(0)
 
     entries, offline = scan()
     entries = merge_existing(entries, catalog_path)
@@ -426,10 +525,12 @@ def main():
 
     doc = write_catalog(entries, offline, catalog_path)
     render_catalog_md(doc, md_path)
-    n_host = len(entries)
+    n_host = sum(1 for e in entries if e.get("hostable"))
     n_review = sum(1 for e in entries if e.get("needs_review"))
-    print(f"Wrote {rel(catalog_path)}: {n_host} hostable "
-          f"({n_review} need review), {len(offline)} offline.")
+    n_manifest = sum(1 for e in entries if e.get("has_manifest"))
+    print(f"Wrote {rel(catalog_path)}: {len(entries)} network entries "
+          f"({n_host} hostable, {n_manifest} with manifest, "
+          f"{n_review} need review), {len(offline)} offline.")
     print(f"Wrote {rel(md_path)}.")
 
 

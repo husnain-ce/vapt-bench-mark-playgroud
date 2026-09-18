@@ -40,6 +40,18 @@ targets are flagged for review, and confirms there are no host-port collisions.
 ./bench down --all           # stop and remove everything bench started
 ```
 
+### Contributing and exposing targets
+
+```bash
+./bench new web              # scaffold a new target (see CONTRIBUTING.md)
+./bench validate             # manifest schema + catalog sync (CI uses this)
+./bench proxy up --base lab.local   # nginx subdomain routing for running targets
+./bench tunnel aq-web-ben01  # expose one target via a cloudflared quick tunnel
+```
+
+See [TARGET_SPEC.md](TARGET_SPEC.md) for the contribution contract and
+[TUNNELING.md](TUNNELING.md) for the full proxy/tunnel workflow.
+
 Target ids can be abbreviated to any unique suffix, so `./bench up ben1` works
 when only one target ends in `ben1`.
 

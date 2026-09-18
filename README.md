@@ -104,6 +104,36 @@ catalog-driven layer on top:
 The full design is in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md); the
 hosting workflow and troubleshooting are in [`docs/HOSTING.md`](docs/HOSTING.md).
 
+## Contribute a target
+
+Anyone can add a target. Each is a self-contained, Dockerized directory that
+declares itself with a `benchmark.yml` manifest:
+
+```bash
+./bench new web --template dockerfile --author your-handle   # scaffold it
+# ...build your vulnerable app in the new folder...
+python3 tools/catalog.py     # register it
+./bench validate             # manifest + catalog checks (CI runs these too)
+./bench up <id>              # build and test
+```
+
+The contract is in [`docs/TARGET_SPEC.md`](docs/TARGET_SPEC.md); the full
+workflow in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## Expose a target (nginx + cloudflared)
+
+```bash
+./bench up aq-web-ben01
+./bench tunnel aq-web-ben01              # zero-config cloudflared quick tunnel
+
+# or route several by subdomain behind nginx, then a named tunnel on your domain
+./bench proxy up --base lab.example.com
+./bench tunnel --named --all
+```
+
+See [`docs/TUNNELING.md`](docs/TUNNELING.md). Exposing an intentionally
+vulnerable target is deliberate — read [`docs/SECURITY.md`](docs/SECURITY.md).
+
 ## Repository layout
 
 ```
@@ -112,6 +142,8 @@ hosting workflow and troubleshooting are in [`docs/HOSTING.md`](docs/HOSTING.md)
 ├── catalog/
 │   └── benchmarks.yaml       # source of truth: every target, port, run method
 ├── docker/                   # generic Dockerfile templates for source-only targets
+├── templates/                # scaffold templates for `bench new`
+├── deploy/                   # nginx proxy + cloudflared tunnel configs
 ├── tools/
 │   └── catalog.py            # scanner that (re)generates the catalog + CATALOG.md
 ├── docs/                     # documentation set (start at docs/README.md)

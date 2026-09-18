@@ -1,0 +1,9 @@
+# Multi-service target. bench runs this under an isolated project and remaps
+# the published port onto the target's assigned host port automatically, so
+# you can keep a conventional mapping here.
+services:
+  web:
+    build: .
+    ports:
+      - "80:80"
+    restart: unless-stopped

@@ -1,7 +1,7 @@
 # Convenience wrappers around the bench CLI and catalog generator.
 # `bench` is the primary interface; these are shortcuts.
 
-.PHONY: help catalog check doctor list ports status down-all
+.PHONY: help catalog check validate doctor list ports status down-all new proxy proxy-down
 
 help:            ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -27,3 +27,15 @@ status:          ## Show running bench targets
 
 down-all:        ## Stop and remove everything bench started
 	./bench down --all
+
+validate:        ## Validate manifests + catalog sync (CI)
+	./bench validate
+
+new:             ## Scaffold a new target: make new DOMAIN=web
+	./bench new $(DOMAIN) $(if $(TEMPLATE),--template $(TEMPLATE),)
+
+proxy:           ## Start the nginx reverse proxy for running targets
+	./bench proxy up
+
+proxy-down:      ## Stop the nginx reverse proxy
+	./bench proxy down

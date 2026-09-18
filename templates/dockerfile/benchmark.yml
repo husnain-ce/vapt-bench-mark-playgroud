@@ -1,0 +1,11 @@
+# Target manifest -- see docs/TARGET_SPEC.md for the full schema.
+id: __ID__
+domain: __DOMAIN__
+title: "One-line human title"
+vuln_class: "e.g. SQL injection (CWE-89)"
+difficulty: easy            # easy | medium | hard
+run: dockerfile
+port: 80                    # the container port your app serves on
+flag: "f13{change_me}"      # optional
+expose: true                # eligible for proxy / tunnel
+author: "__AUTHOR__"

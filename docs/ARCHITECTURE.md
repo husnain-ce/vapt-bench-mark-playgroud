@@ -92,6 +92,35 @@ unreachable through a published Docker port. Rather than patch each target,
 This makes the entire `native-python` class reachable without editing a single
 target.
 
+## The contribution contract
+
+Discovery is no longer purely heuristic. Each target declares itself in a
+`benchmark.yml` manifest (see [TARGET_SPEC.md](TARGET_SPEC.md)); the scanner
+treats it as authoritative and fills only the fields it omits from heuristics.
+New targets must ship a manifest, validated in CI with `bench validate`; the
+pre-existing targets keep working through heuristics and are backfilled over
+time. This makes third-party contributions declarative and safe to merge.
+
+`bench new <domain>` scaffolds a target from `templates/<run>/`, filling the id,
+domain, and author into a manifest + Dockerfile/compose + README skeleton.
+
+## Exposure layer (proxy + tunnel)
+
+Two thin layers sit in front of the already-working local ports:
+
+- **`bench proxy`** generates one nginx `server` block per running, exposed
+  target (`<id>.<base-domain>` → `host.docker.internal:<host_port>`) into
+  `.bench/nginx/conf.d/`, then runs an `nginx:alpine` container. It reuses the
+  X-Forwarded + redirect-rewrite pattern the maintainer established in
+  `Web/.OWASP`, so apps behind it see correct host/scheme.
+- **`bench tunnel`** fronts either one target's port (a zero-config quick
+  tunnel) or the nginx proxy (a named tunnel on the maintainer's domain, whose
+  ingress `bench` generates from the running exposed set).
+
+Because the proxy talks to targets over `host.docker.internal`, nothing about
+how targets run has to change to expose them. Full workflow in
+[TUNNELING.md](TUNNELING.md).
+
 ## What is out of scope
 
 `android`, `ios`, and `Machines` cannot be meaningfully containerised — they

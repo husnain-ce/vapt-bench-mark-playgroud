@@ -62,7 +62,7 @@ These run as containers via the `bench` CLI on the listed host port.
 | `aq-web-ben50` | web | 8150 | compose | aq-web-ben50 | — |
 | `aq-web-ben51` | web | 8151 | compose | aq-web-ben51 | — |
 | `aq-web-ben52` | web | 8152 | compose | aq-web-ben52 | — |
-| `aq-web-ben53` | web | 8153 | compose | aq-web-ben53 | — |
+| `aq-web-ben53` | web | 8153 | compose | Local file read / info disclosure | easy |
 | `aq-web-ben54` | web | 8154 | compose | aq-web-ben54 | — |
 | `aq-web-ben55` | web | 8155 | compose | aq-web-ben55 | — |
 | `aq-web-ben56` | web | 8156 | compose | aq-web-ben56 | — |
@@ -84,14 +84,14 @@ These run as containers via the `bench` CLI on the listed host port.
 | `aq-api-ben05` | api | 8305 | native-python | JWT alg:none accepted — signature stripped, token trusted as | — |
 | `aq-api-ben06` | api | 8306 | compose | API1  Broken Object Level Authorization (BOLA/IDOR)  -> vehi | — |
 | `aq-api-ben07` | api | 8307 | compose | This module is no longer supported. However, it's wildy vuln | — |
-| `aq-api-ben08` | api | 8308 | native-node | application/json' -d '{"__proto__":{"isAdmin":true}}' | — |
+| `aq-api-ben08` | api | 8308 | native-node | API logic / auth flaw | medium |
 | `aq-api-ben09` | api | 8309 | native-python | application/json' -d '{"amount":100}' >/dev/null | — |
 | `aq-api-ben10` | api | 8310 | native-python | application/json' \ | — |
 | `aq-api-ben11` | api | 8311 | dockerfile | What is Tiredful API? | — |
 | `aq-api-ben12` | api | 8312 | compose | VAmPI | — |
 | `aq-api-ben13` | api | 8313 | compose | vAPI [![Tweet](https://img.shields.io/twitter/url/http/shiel | — |
 | `aq-api-ben14` | api | 8314 | manual ⚠️ | application/json or application/xml | — |
-| `aq-cloud-ben01` | cloud | 8501 | native-python | Public S3 bucket (read) — acme-public-assets allows anonymou | — |
+| `aq-cloud-ben01` | cloud | 8501 | native-python | Public S3 bucket read/write; sensitive data exposure | easy |
 | `aq-cloud-ben02` | cloud | 8502 | native-python | Secrets in Lambda environment variables — DB password, Strip | — |
 | `aq-cloud-ben03` | cloud | 8503 | native-python | application/json' -X POST \ | — |
 | `aq-cloud-ben04` | cloud | 8504 | native-python | SSRF — /preview fetches any attacker-supplied URL, no allowl | — |

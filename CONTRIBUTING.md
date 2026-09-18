@@ -1,56 +1,59 @@
-# Contributing a benchmark target
+# Contributing a target ("machine")
 
-## Naming & layout
+Anyone can add a target. Every target is a **self-contained, Dockerized**
+directory that declares itself with a `benchmark.yml` manifest. The full
+contract is in [docs/TARGET_SPEC.md](docs/TARGET_SPEC.md).
 
-Add your target under its domain folder, following the existing convention:
-
-```
-Web/aq-web-ben<N>/         API/aq-api-ben<N>/        Cloud/aq-cloud-ben<N>/
-android/aq-android-ben<N>/ ios/aq-ios-ben<N>/        Machines/<Name>/
-```
-
-Use the next free `ben<N>` number in that domain.
-
-## What to include
-
-1. **A `README.md`** inside the target describing:
-   - the vulnerability class / category (and CWE if you know it),
-   - the difficulty,
-   - the intended exploitation path (and a flag, if the target uses one).
-2. **A way to run it**, in this order of preference for network targets:
-   - a `docker-compose.yml` (best — declares ports, dependencies, env), or
-   - a `Dockerfile`, or
-   - a self-contained `app.py` / `server.js` / static PHP that one of the
-     generic templates in [`docker/`](docker/) can wrap.
-3. **Fake secrets only.** Flags and sample credentials must be obviously fake
-   (see existing targets). Never commit a real secret, key, or `.env`.
-
-Mobile (`android`/`ios`) and `Machines` targets ship source or a VM image with
-build/download instructions in their README; they are not containerised.
-
-## Register it in the catalog
-
-Regenerate the catalog so the CLI and docs pick up your target:
+## 1. Scaffold it
 
 ```bash
-python3 tools/catalog.py
+./bench new web --template dockerfile --author your-handle
+# templates: dockerfile (default) | compose | python
+# creates Web/aq-web-benNN/ with benchmark.yml + a Dockerfile + README skeleton
 ```
 
-Then check your new entry in `catalog/benchmarks.yaml`:
+Use `--domain web|api|cloud`. The next free id in that domain is chosen for you.
 
-- If it is flagged `needs_review: true`, the scanner could not fully determine
-  its run method or port. Fix `run_method`, `internal_port`, etc. by hand — your
-  edits to curated fields are preserved on future regenerates.
-- Verify it hosts: `./bench up <id>` then `curl` its port, then
-  `./bench down <id>`.
-- Run `./bench doctor` to confirm no port collisions.
+## 2. Build the target
 
-## Before you open a PR
+- Put your intentionally vulnerable app in the new directory.
+- Serve it on the `port` you declared in `benchmark.yml`, bound to `0.0.0.0`.
+- Fill in `benchmark.yml` (title, vuln class, difficulty, flag) and the README
+  (vulnerability, difficulty, intended exploit path).
+- Use **fake secrets only**. Never commit a real secret, key, or `.env`.
+
+Prefer, in order: your own `docker-compose.yml`, your own `Dockerfile`, or
+self-contained source that a generic template wraps (`native-python`,
+`native-node`, `php-static`).
+
+## 3. Register and test it
 
 ```bash
-python3 tools/catalog.py --check   # catalog + docs/CATALOG.md are up to date
-./bench doctor                     # environment + catalog sanity
+python3 tools/catalog.py     # register it in the catalog + docs/CATALOG.md
+./bench up <id>              # build and run on its assigned host port
+curl http://localhost:<port> # confirm it serves
+./bench down <id>
 ```
 
-Commit the regenerated `catalog/benchmarks.yaml` and `docs/CATALOG.md` together
-with your target.
+## 4. Validate before opening a PR
+
+```bash
+./bench validate             # manifest schema + catalog is in sync
+./bench doctor               # no port collisions
+```
+
+Commit the regenerated `catalog/benchmarks.yaml` and `docs/CATALOG.md` along
+with your target. CI runs the same `validate` on every PR.
+
+## Naming & domains
+
+- Hostable domains: `Web/`, `API/`, `Cloud/`, folder `aq-<domain>-ben<NN>`.
+- Out-of-band domains (`android/`, `ios/`, `Machines/`) ship source or a VM
+  image with build/download instructions in their README; they are not
+  containerised and are documented, not hosted by `bench`.
+
+## Exposing your target
+
+Once it runs, it can be put behind the nginx proxy and a Cloudflare tunnel —
+see [docs/TUNNELING.md](docs/TUNNELING.md). Keep `expose: true` in the manifest
+(the default) to make it eligible.
