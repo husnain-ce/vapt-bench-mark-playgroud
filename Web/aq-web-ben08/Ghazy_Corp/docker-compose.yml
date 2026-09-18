@@ -1,0 +1,28 @@
+services:
+  db:
+    image: mariadb:10.11
+    container_name: aq-web-ben08-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ghazycorp
+      MYSQL_USER: ctf
+      MYSQL_PASSWORD: ctf123
+    volumes:
+      - ./init.db:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+
+  web:
+    image: php:8.2-apache
+    container_name: aq-web-ben08
+    ports:
+      - "5108:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./flag.txt:/flag.txt:ro
+    depends_on:
+      - db
+    command: >
+      bash -c "docker-php-ext-install mysqli
+      && sed -i 's/127.0.0.1/db/' /var/www/html/db.php
+      && apache2-foreground"
+    restart: unless-stopped

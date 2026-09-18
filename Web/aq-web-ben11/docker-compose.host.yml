@@ -1,0 +1,7 @@
+services:
+  web:
+    build: .
+    container_name: aq-web-ben11
+    ports:
+      - "5111:5000"
+    restart: unless-stopped

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AQSEC Labs</title>
+  <style>
+    :root { --bg:#0b1220; --fg:#e8eef8; --muted:#9db0c9; --accent:#3d8bfd; --card:#121a2b; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--fg);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #1a3a6b 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #0f2a44 0%, transparent 50%),
+        var(--bg);
+    }
+    main { max-width: 880px; margin: 0 auto; padding: 4.5rem 1.5rem 3rem; }
+    .brand { font-size: clamp(2.4rem, 6vw, 3.6rem); font-weight: 750; letter-spacing: -0.03em; margin: 0 0 .4rem; }
+    .tag { color: var(--muted); font-size: 1.05rem; margin: 0 0 2.2rem; max-width: 36rem; }
+    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .9rem; }
+    a.card {
+      display: block; text-decoration: none; color: inherit;
+      background: color-mix(in srgb, var(--card) 92%, white 8%);
+      border: 1px solid #24324a; border-radius: 12px; padding: 1.1rem 1.25rem;
+      transition: border-color .15s, transform .15s;
+    }
+    a.card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .name { font-weight: 650; font-size: 1.15rem; }
+    .meta { color: var(--muted); font-size: .92rem; margin-top: .25rem; }
+    footer { margin-top: 2.5rem; color: #6f829c; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 class="brand">AQSEC Labs</h1>
+    <p class="tag">Public practice targets hosted by AQSEC. Use only for authorized training.</p>
+    <ul>
+      <li><a class="card" href="https://aqsec-lab01.aq-sec-labs.shop/">
+        <div class="name">AQSEC Lab 01</div>
+        <div class="meta">Classic vulnerable PHP app · aqsec-lab01.aq-sec-labs.shop</div>
+      </a></li>
+      <li><a class="card" href="https://aqsec-lab02.aq-sec-labs.shop/">
+        <div class="name">AQSEC Lab 02</div>
+        <div class="meta">Modern JS training shop · aqsec-lab02.aq-sec-labs.shop</div>
+      </a></li>
+      <li><a class="card" href="https://aqsec-lab03.aq-sec-labs.shop/WebGoat">
+        <div class="name">AQSEC Lab 03</div>
+        <div class="meta">Interactive lesson platform · aqsec-lab03.aq-sec-labs.shop</div>
+      </a></li>
+      <li><a class="card" href="https://aqsec-lab04.aq-sec-labs.shop/bodgeit">
+        <div class="name">AQSEC Lab 04</div>
+        <div class="meta">Beginner store app · aqsec-lab04.aq-sec-labs.shop</div>
+      </a></li>
+    </ul>
+    <footer>AQSEC · aq-sec-labs.shop</footer>
+  </main>
+</body>
+</html>

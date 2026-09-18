@@ -1,0 +1,7 @@
+services:
+  web:
+    build: web
+    ports:
+      - "5127:3000"
+    restart: unless-stopped
+    mem_limit: 256m

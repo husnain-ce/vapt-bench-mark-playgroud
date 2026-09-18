@@ -1,0 +1,86 @@
+services:
+  aqsec-dvwa:
+    image: ghcr.io/digininja/dvwa:latest
+    container_name: aqsec-dvwa
+    ports:
+      - "5201:80"
+    environment:
+      - DB_SERVER=aqsec-dvwa-db
+    depends_on:
+      - aqsec-dvwa-db
+    restart: unless-stopped
+
+  aqsec-dvwa-db:
+    image: mariadb:10.11
+    container_name: aqsec-dvwa-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=dvwa
+      - MYSQL_DATABASE=dvwa
+      - MYSQL_USER=dvwa
+      - MYSQL_PASSWORD=p@ssw0rd
+    volumes:
+      - aqsec-dvwa-db:/var/lib/mysql
+    restart: unless-stopped
+
+  aqsec-juice:
+    image: bkimminich/juice-shop:latest
+    container_name: aqsec-juice
+    ports:
+      - "5202:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  aqsec-webgoat:
+    image: webgoat/webgoat:latest
+    container_name: aqsec-webgoat
+    expose:
+      - "8080"
+      - "9090"
+    environment:
+      - WEBGOAT_HOST=0.0.0.0
+      - WEBWOLF_HOST=0.0.0.0
+      - TZ=UTC
+    restart: unless-stopped
+
+  aqsec-lab03-proxy:
+    image: nginx:alpine
+    container_name: aqsec-lab03-proxy
+    ports:
+      - "5203:80"
+    volumes:
+      - ./aqsec-lab03-proxy/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - aqsec-webgoat
+    restart: unless-stopped
+
+  aqsec-lab03-wolf-proxy:
+    image: nginx:alpine
+    container_name: aqsec-lab03-wolf-proxy
+    ports:
+      - "5205:80"
+    volumes:
+      - ./aqsec-lab03-wolf-proxy/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - aqsec-webgoat
+    restart: unless-stopped
+
+  aqsec-bodgeit:
+    image: securecodebox/bodgeit:latest
+    container_name: aqsec-bodgeit
+    ports:
+      - "5204:8080"
+    restart: unless-stopped
+
+  aqsec-portal:
+    image: nginx:alpine
+    container_name: aqsec-portal
+    ports:
+      - "5200:80"
+    volumes:
+      - ./aqsec-portal/html:/usr/share/nginx/html:ro
+      - ./aqsec-portal/default.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+volumes:
+  aqsec-dvwa-db:

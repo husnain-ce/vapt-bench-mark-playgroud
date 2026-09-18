@@ -1,0 +1,24 @@
+services:
+  db:
+    image: mysql:5.7
+    container_name: aq-web-ben16-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: xvwa
+      MYSQL_USER: xvwa
+      MYSQL_PASSWORD: xvwa
+    volumes:
+      - ben16-db:/var/lib/mysql
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: aq-web-ben16
+    ports:
+      - "5116:80"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  ben16-db:

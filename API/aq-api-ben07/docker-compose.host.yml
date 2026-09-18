@@ -1,0 +1,18 @@
+version: "2"
+
+services:
+  db:
+    image: deadrobots/pixi:datastore
+    container_name: pixidb
+    ports:
+      - "20070:27017"
+      - "20071:28017"
+    expose:
+      - "27017"
+      - "28017"
+
+  app:
+    build: ./app
+    ports:
+      - "5307:8000"
+      - "20072:8090"

@@ -1,0 +1,7 @@
+services:
+  web:
+    build: .
+    container_name: aq-web-ben15
+    ports:
+      - "5115:80"
+    restart: unless-stopped

@@ -1,0 +1,7 @@
+services:
+  web:
+    build: .
+    container_name: aq-web-ben14
+    ports:
+      - "5114:80"
+    restart: unless-stopped

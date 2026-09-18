@@ -1,0 +1,7 @@
+services:
+  web:
+    build: web
+    ports:
+      - "5156:5000"
+    restart: unless-stopped
+    mem_limit: 256m

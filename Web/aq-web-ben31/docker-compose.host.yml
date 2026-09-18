@@ -1,0 +1,7 @@
+services:
+  web:
+    build: /home/kali/bnc/Web/aq-web-ben31
+    ports:
+      - "5131:443"
+    restart: unless-stopped
+    mem_limit: 256m
