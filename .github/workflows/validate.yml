@@ -28,7 +28,10 @@ jobs:
           python3 - <<'PY'
           import yaml, sys
           d = yaml.safe_load(open('catalog/benchmarks.yaml'))
-          ports = [t['host_port'] for t in d['targets'] if t.get('hostable')]
+          ports = []
+          for t in d['targets']:
+              if t.get('hostable'):
+                  ports.extend(t.get('host_ports') or [t['host_port']])
           dupes = sorted({p for p in ports if ports.count(p) > 1})
           if dupes:
               print("host port collisions:", dupes); sys.exit(1)

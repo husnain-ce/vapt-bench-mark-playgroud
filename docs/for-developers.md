@@ -52,6 +52,19 @@ your app is always reachable.
 4. **One command up, one command down.** If `./bench up <id>` does not serve it
    and `./bench down <id>` does not remove it cleanly, it is not done.
 
+## Multi-port (network) targets
+
+A target that exposes several services declares them in the manifest:
+
+```yaml
+run: dockerfile
+ports: [8000, 6379]
+```
+
+`bench` maps each container port to a host port from the target's block
+(e.g. `9010->8000`, `9011->6379`). Use `run: dockerfile` or `compose` so
+you control the `EXPOSE`d ports and how each service binds `0.0.0.0`.
+
 ## Ports
 
 You do not pick a host port. `bench` assigns a collision-free one from the

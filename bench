@@ -49,7 +49,8 @@ TEMPLATES = {
     "php-static": REPO / "docker" / "php.Dockerfile",
 }
 ENTRY_CANDIDATES = ["app.py", "main.py", "server.py", "server.js", "index.js"]
-DOMAIN_DIR = {"web": "Web", "api": "API", "cloud": "Cloud"}
+DOMAIN_DIR = {"web": "Web", "api": "API", "cloud": "Cloud",
+              "ai": "AI", "domain": "Domain", "network": "Network"}
 PROXY_NAME = "bench-proxy"
 
 # ANSI helpers (disabled when not a TTY)
@@ -136,6 +137,19 @@ def detect_entry(path: Path) -> str:
     return "app.py"
 
 
+def port_flags(t: dict) -> list[str]:
+    """Return -p host:container flags. Multi-port targets map every declared
+    port from their assigned host-port block; single-port maps one."""
+    hosts = t.get("host_ports")
+    conts = t.get("internal_ports")
+    if hosts and conts and len(hosts) == len(conts):
+        flags = []
+        for h, c in zip(hosts, conts):
+            flags += ["-p", f"{h}:{c}"]
+        return flags
+    return ["-p", f"{t['host_port']}:{t['internal_port']}"]
+
+
 # --------------------------------------------------------------------------- #
 # bring up
 # --------------------------------------------------------------------------- #
@@ -161,8 +175,7 @@ def up_image(t: dict) -> int:
     name = container_name(t)
     subprocess.run(["docker", "rm", "-f", name], capture_output=True)
     return run(["docker", "run", "-d", "--name", name,
-                "-p", f"{t['host_port']}:{t['internal_port']}",
-                "--label", "bench=1", t["image"]])
+                *port_flags(t), "--label", "bench=1", t["image"]])
 
 
 def up_dockerfile(t: dict) -> int:
@@ -175,8 +188,7 @@ def up_dockerfile(t: dict) -> int:
     name = container_name(t)
     subprocess.run(["docker", "rm", "-f", name], capture_output=True)
     return run(["docker", "run", "-d", "--name", name,
-                "-p", f"{t['host_port']}:{t['internal_port']}",
-                "--label", "bench=1", tag])
+                *port_flags(t), "--label", "bench=1", tag])
 
 
 def up_template(t: dict) -> int:
@@ -193,8 +205,7 @@ def up_template(t: dict) -> int:
     name = container_name(t)
     subprocess.run(["docker", "rm", "-f", name], capture_output=True)
     return run(["docker", "run", "-d", "--name", name,
-                "-p", f"{t['host_port']}:{t['internal_port']}",
-                "--label", "bench=1", tag])
+                *port_flags(t), "--label", "bench=1", tag])
 
 
 def compose_services_with_ports(compose_path: Path) -> list[tuple[str, str]]:
@@ -340,8 +351,13 @@ def cmd_ports(cat, args):
     print(f"{BOLD}Port map{RESET} (host -> target)")
     for t in sorted([x for x in targets(cat) if x.get("hostable")],
                     key=lambda x: x["host_port"]):
-        print(f"  {t['host_port']:<6} {t['id']:<26} "
-              f"{DIM}(container :{t['internal_port']}){RESET}")
+        if t.get("host_ports"):
+            m = ", ".join(f"{h}:{c}" for h, c in
+                          zip(t["host_ports"], t["internal_ports"]))
+            print(f"  {t['host_port']:<6} {t['id']:<26} {DIM}[{m}]{RESET}")
+        else:
+            print(f"  {t['host_port']:<6} {t['id']:<26} "
+                  f"{DIM}(container :{t['internal_port']}){RESET}")
 
 
 def cmd_status(cat, args):
@@ -388,7 +404,10 @@ def cmd_doctor(cat, args):
     print(f"  {'!' if review else GREEN+'✓'+RESET} "
           f"{len(review)} target(s) flagged needs_review"
           + (f": {', '.join(review)}" if review else ""))
-    ports = [t["host_port"] for t in targets(cat) if t.get("hostable")]
+    ports = []
+    for t in targets(cat):
+        if t.get("hostable"):
+            ports.extend(t.get("host_ports") or [t["host_port"]])
     dupes = sorted({p for p in ports if ports.count(p) > 1})
     if dupes:
         print(f"  {RED}✗{RESET} host port collisions: {dupes}")

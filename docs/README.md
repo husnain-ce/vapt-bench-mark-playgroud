@@ -33,6 +33,9 @@ Start here.
 | Web     | [domains/web.md](domains/web.md)         | `bench` CLI (Docker) |
 | API     | [domains/api.md](domains/api.md)         | `bench` CLI (Docker) |
 | Cloud   | [domains/cloud.md](domains/cloud.md)     | `bench` CLI (Docker) |
+| AI/LLM  | [domains/ai.md](domains/ai.md)           | `bench` CLI (mock, no model) |
+| Domain  | [domains/domain.md](domains/domain.md)   | `bench` CLI (vhost) |
+| Network | [domains/network.md](domains/network.md) | `bench` CLI (multi-port) |
 | Android | [domains/android.md](domains/android.md) | Android Studio / emulator |
 | iOS     | [domains/ios.md](domains/ios.md)         | Xcode / simulator |
 | Machines| [domains/machines.md](domains/machines.md)| VirtualBox (VulnHub VMs) |

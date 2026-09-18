@@ -15,20 +15,22 @@ scanner heuristics and are backfilled opportunistically.
 └── <your app files>
 ```
 
-Domain folders: `Web/`, `API/`, `Cloud/` (hostable). `android/`, `ios/`, and
-`Machines/` are out-of-band (source / VM) and are not containerised.
+Domain folders: `Web/`, `API/`, `Cloud/`, `AI/`, `Domain/`, `Network/`
+(hostable). `android/`, `ios/`, and `Machines/` are out-of-band (source / VM)
+and are not containerised.
 
 ## `benchmark.yml` schema
 
 | Field         | Required | Notes |
 |---------------|----------|-------|
 | `id`          | yes      | Must equal the folder name (`aq-<domain>-ben<NN>`). |
-| `domain`      | yes      | `web` \| `api` \| `cloud` \| `android` \| `ios` \| `machine`. |
+| `domain`      | yes      | `web` \| `api` \| `cloud` \| `ai` \| `domain` \| `network` \| `android` \| `ios` \| `machine`. |
 | `title`       | yes      | One-line human title. |
 | `vuln_class`  | yes      | Vulnerability class + CWE if known. |
 | `difficulty`  | yes      | `easy` \| `medium` \| `hard`. |
 | `run`         | yes      | `compose` \| `dockerfile` \| `image` \| `native-python` \| `native-node` \| `php-static`. |
-| `port`        | yes      | The container port the app serves on. |
+| `port`        | yes*     | The container port the app serves on (*or `ports` for multi-port). |
+| `ports`       | no       | A list of container ports for multi-service targets, e.g. `[8000, 6379]`; bench maps a host-port block. |
 | `host_port`   | no       | Fixed host port; otherwise auto-assigned from the domain range. |
 | `compose_file`| if compose | Path to the compose file, relative to the target dir. |
 | `image`       | if image | Pinned upstream image (`name:tag`). |

@@ -6,18 +6,24 @@ meta:
   - web
   - api
   - cloud
+  - ai
+  - domain
+  - network
   offline_domains:
   - android
   - ios
   - machine
   counts:
+    ai: 1
     android: 19
     api: 16
     cloud: 12
+    domain: 1
     ios: 11
     machine: 6
+    network: 1
     web: 70
-  total: 134
+  total: 137
 targets:
 - id: aq-web-ben01
   domain: web
@@ -1800,6 +1806,75 @@ targets:
   has_manifest: true
   flag: f13{yaml_unsafe_load_rce}
   author: aqsec
+- id: aq-ai-ben1
+  domain: ai
+  path: AI/aq-ai-ben1
+  title: "HelpBot \u2014 prompt injection / system-prompt leak"
+  vuln_class: Prompt injection (system-prompt disclosure), deterministic mock
+  difficulty: medium
+  run_method: native-python
+  host_port: 8701
+  internal_port: 8000
+  compose_file: ''
+  compose_service: ''
+  dockerfile: ''
+  image: ''
+  hostable: true
+  needs_review: false
+  enabled: true
+  expose: true
+  notes: ''
+  has_manifest: true
+  flag: f13{prompt_injection_repeat_above}
+  author: aqsec
+- id: aq-domain-ben1
+  domain: domain
+  path: Domain/aq-domain-ben1
+  title: "AcmeCorp \u2014 hidden vhost / subdomain enumeration"
+  vuln_class: Information disclosure via undocumented virtual host
+  difficulty: easy
+  run_method: native-python
+  host_port: 8901
+  internal_port: 8000
+  compose_file: ''
+  compose_service: ''
+  dockerfile: ''
+  image: ''
+  hostable: true
+  needs_review: false
+  enabled: true
+  expose: true
+  notes: ''
+  has_manifest: true
+  flag: f13{hidden_vhost_internal}
+  author: aqsec
+- id: aq-network-ben1
+  domain: network
+  path: Network/aq-network-ben1
+  title: "AcmeCache \u2014 exposed unauthenticated data service"
+  vuln_class: Unauthenticated network service exposure (Redis-like)
+  difficulty: medium
+  run_method: dockerfile
+  host_port: 9010
+  internal_port: 8000
+  compose_file: ''
+  compose_service: ''
+  dockerfile: Network/aq-network-ben1/Dockerfile
+  image: ''
+  hostable: true
+  needs_review: false
+  enabled: true
+  expose: true
+  notes: ''
+  has_manifest: true
+  flag: f13{exposed_redis_no_auth}
+  author: aqsec
+  internal_ports:
+  - 8000
+  - 6379
+  host_ports:
+  - 9010
+  - 9011
 - id: aq-web-owasp-suite
   domain: web
   path: Web/.OWASP

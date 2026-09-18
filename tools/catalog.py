@@ -36,10 +36,15 @@ except ImportError:  # pragma: no cover - yaml is a hard dependency
 REPO = Path(__file__).resolve().parent.parent
 
 # Domains that produce network services we can containerise and host.
+# `block` is the host-port spacing per target (network targets are multi-port,
+# so they reserve a block of ports each).
 NETWORK_DOMAINS = {
-    "Web": {"key": "web", "port_base": 8100},
-    "API": {"key": "api", "port_base": 8300},
-    "Cloud": {"key": "cloud", "port_base": 8500},
+    "Web": {"key": "web", "port_base": 8100, "block": 1},
+    "API": {"key": "api", "port_base": 8300, "block": 1},
+    "Cloud": {"key": "cloud", "port_base": 8500, "block": 1},
+    "AI": {"key": "ai", "port_base": 8700, "block": 1},
+    "Domain": {"key": "domain", "port_base": 8900, "block": 1},
+    "Network": {"key": "network", "port_base": 9000, "block": 10},
 }
 # Domains that ship source or VM images and are hosted out-of-band.
 OFFLINE_DOMAINS = {
@@ -225,7 +230,8 @@ def ben_index(name: str) -> int:
 
 
 MANIFEST_NAME = "benchmark.yml"
-VALID_DOMAINS = {"web", "api", "cloud", "android", "ios", "machine"}
+VALID_DOMAINS = {"web", "api", "cloud", "android", "ios", "machine",
+                 "ai", "domain", "network"}
 VALID_RUN = {"compose", "dockerfile", "image", "native-python",
              "native-node", "php-static", "external", "manual"}
 
@@ -263,6 +269,9 @@ def overlay_manifest(entry: dict, target: Path) -> None:
             entry[dst] = m[src]
     if "compose_file" in m and m["compose_file"]:
         entry["compose_file"] = rel(target / m["compose_file"])
+    if isinstance(m.get("ports"), list) and m["ports"]:
+        entry["internal_ports"] = [int(p) for p in m["ports"]]
+        entry["internal_port"] = entry["internal_ports"][0]
     if entry.get("run_method") not in ("manual", "external"):
         entry["hostable"] = True
     entry["needs_review"] = False
@@ -293,7 +302,7 @@ def scan():
                 internal = 80
                 needs_review = True
             title, vuln, difficulty = read_meta(target)
-            host_port = cfg["port_base"] + idx
+            host_port = cfg["port_base"] + idx * cfg.get("block", 1)
             entry = {
                 "id": target.name,
                 "domain": cfg["key"],
@@ -315,6 +324,13 @@ def scan():
                 "notes": "",
             }
             overlay_manifest(entry, target)
+            # Multi-port targets: assign a host-port block from the domain range.
+            if entry.get("internal_ports"):
+                block = cfg["port_base"] + idx * cfg.get("block", 1)
+                entry["host_ports"] = [block + i
+                                       for i in range(len(entry["internal_ports"]))]
+                entry["host_port"] = entry["host_ports"][0]
+                entry["internal_port"] = entry["internal_ports"][0]
             entries.append(entry)
 
     # OWASP flagship suite: a single curated compose stack (DVWA + DB, Juice
@@ -402,6 +418,12 @@ def validate_all():
             port = m.get("port")
             if port is not None and not (isinstance(port, int) and 1 <= port <= 65535):
                 errors.append(f"{where}: port must be 1-65535")
+            ports = m.get("ports")
+            if ports is not None:
+                if not isinstance(ports, list) or not ports:
+                    errors.append(f"{where}: ports must be a non-empty list")
+                elif not all(isinstance(p, int) and 1 <= p <= 65535 for p in ports):
+                    errors.append(f"{where}: every ports entry must be 1-65535")
             diff = m.get("difficulty")
             if diff and str(diff).lower() not in ("easy", "medium", "hard"):
                 errors.append(f"{where}: difficulty must be easy|medium|hard")

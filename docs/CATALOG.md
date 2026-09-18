@@ -1,8 +1,8 @@
 # Benchmark Catalog
 
-Auto-generated from `catalog/benchmarks.yaml` by `tools/catalog.py`. Total targets: **134**.
+Auto-generated from `catalog/benchmarks.yaml` by `tools/catalog.py`. Total targets: **137**.
 
-Counts by domain: `android` 19, `api` 16, `cloud` 12, `ios` 11, `machine` 6, `web` 70.
+Counts by domain: `ai` 1, `android` 19, `api` 16, `cloud` 12, `domain` 1, `ios` 11, `machine` 6, `network` 1, `web` 70.
 
 ## Hostable targets (Docker)
 
@@ -107,6 +107,9 @@ These run as containers via the `bench` CLI on the listed host port.
 | `aq-cloud-ben10` | cloud | 8510 | manual ⚠️ | pull_request_target with secrets — the workflow trusts fork  | — |
 | `aq-cloud-ben11` | cloud | 8511 | native-python | Security misconfiguration (unauthenticated actuator/env leak | easy |
 | `aq-cloud-ben12` | cloud | 8512 | native-python | Insecure deserialization (yaml.UnsafeLoader) -> RCE | hard |
+| `aq-ai-ben1` | ai | 8701 | native-python | Prompt injection (system-prompt disclosure), deterministic m | medium |
+| `aq-domain-ben1` | domain | 8901 | native-python | Information disclosure via undocumented virtual host | easy |
+| `aq-network-ben1` | network | 9010 | dockerfile | Unauthenticated network service exposure (Redis-like) | medium |
 | `aq-web-owasp-suite` | web | 5200 | compose | OWASP Top 10 (flagship apps) | — |
 
 ⚠️ = scanner could not fully determine run method or port; verify before relying on it.

@@ -25,14 +25,17 @@ beyond web to API, cloud, mobile, and dedicated pentest machines.
 | `Web`       | 67 + 4 OWASP | Docker (compose / Dockerfile / image / source) | `bench` CLI |
 | `API`       | 14      | Docker (mixed) | `bench` CLI |
 | `Cloud`     | 10      | Docker (native Python services) | `bench` CLI |
+| `AI`        | 1       | Docker (mock LLM, no model hosted) | `bench` CLI |
+| `Domain`    | 1       | Docker (vhost / subdomain) | `bench` CLI |
+| `Network`   | 1       | Docker (multi-service, multi-port) | `bench` CLI |
 | `android`   | 19      | Android Studio / Gradle source | emulator (out-of-band) |
 | `ios`       | 11      | Xcode source | simulator / device (out-of-band) |
 | `Machines`  | 6       | VulnHub OVA VMs | VirtualBox (out-of-band) |
 
-**90 network targets** (Web + API + Cloud + the four flagship OWASP apps) are
-containerised and started through the `bench` CLI. The mobile and VM domains
-ship source or disk images and are built and run out-of-band; the CLI lists
-them and points at each one's build steps.
+The **Web, API, Cloud, AI, Domain, and Network** domains are containerised and
+started through the `bench` CLI (run `./bench list` for the live count). The
+mobile and VM domains ship source or disk images and are built and run
+out-of-band; the CLI lists them and points at each one's build steps.
 
 The authoritative inventory lives in [`catalog/benchmarks.yaml`](catalog/benchmarks.yaml),
 rendered for humans in [`docs/CATALOG.md`](docs/CATALOG.md).
@@ -150,7 +153,7 @@ vulnerable target is deliberate — read [`docs/SECURITY.md`](docs/SECURITY.md).
 ├── tools/
 │   └── catalog.py            # scanner that (re)generates the catalog + CATALOG.md
 ├── docs/                     # documentation set (start at docs/README.md)
-├── Web/  API/  Cloud/        # hostable network targets (per-target folders)
+├── Web/ API/ Cloud/ AI/ Domain/ Network/   # hostable targets (per-target folders)
 └── android/  ios/  Machines/ # out-of-band targets (source / VM images)
 ```
 

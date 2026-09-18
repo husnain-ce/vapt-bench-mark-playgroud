@@ -1,0 +1,10 @@
+id: aq-domain-ben1
+domain: domain
+title: "AcmeCorp — hidden vhost / subdomain enumeration"
+vuln_class: "Information disclosure via undocumented virtual host"
+difficulty: easy
+run: native-python
+port: 8000
+flag: "f13{hidden_vhost_internal}"
+expose: true
+author: aqsec

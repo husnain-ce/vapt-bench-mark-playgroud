@@ -1,0 +1,10 @@
+id: aq-ai-ben1
+domain: ai
+title: "HelpBot — prompt injection / system-prompt leak"
+vuln_class: "Prompt injection (system-prompt disclosure), deterministic mock"
+difficulty: medium
+run: native-python
+port: 8000
+flag: "f13{prompt_injection_repeat_above}"
+expose: true
+author: aqsec

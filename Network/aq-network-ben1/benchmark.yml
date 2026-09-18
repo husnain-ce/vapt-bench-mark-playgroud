@@ -1,0 +1,10 @@
+id: aq-network-ben1
+domain: network
+title: "AcmeCache — exposed unauthenticated data service"
+vuln_class: "Unauthenticated network service exposure (Redis-like)"
+difficulty: medium
+run: dockerfile
+ports: [8000, 6379]
+flag: "f13{exposed_redis_no_auth}"
+expose: true
+author: aqsec
